@@ -1,0 +1,3 @@
+import type { NativeScrollEvent, NativeSyntheticEvent, ScrollViewProps } from 'react-native';
+export declare const useScrollHandlers: ({ onScroll: _onScroll, onScrollEndDrag: _onScrollEndDrag, onScrollBeginDrag: _onScrollBeginDrag, onMomentumScrollEnd: _onMomentumScrollEnd, onMomentumScrollBegin: _onMomentumScrollBegin, }: Pick<ScrollViewProps, 'onScroll' | 'onScrollEndDrag' | 'onScrollBeginDrag' | 'onMomentumScrollEnd' | 'onMomentumScrollBegin'>) => (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+//# sourceMappingURL=useScrollHandlers.d.ts.map

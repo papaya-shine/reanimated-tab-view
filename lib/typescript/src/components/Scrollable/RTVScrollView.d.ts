@@ -1,0 +1,5 @@
+import React from 'react';
+import Animated from 'react-native-reanimated';
+export declare const RTVScrollViewWithoutScrollHandler: React.MemoExoticComponent<React.ForwardRefExoticComponent<import("react-native").ScrollViewProps & React.RefAttributes<React.ForwardedRef<Animated.ScrollView>>>>;
+export declare const RTVScrollView: React.MemoExoticComponent<React.ForwardRefExoticComponent<import("react-native").ScrollViewProps & React.RefAttributes<React.ForwardedRef<Animated.ScrollView>>>>;
+//# sourceMappingURL=RTVScrollView.d.ts.map

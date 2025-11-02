@@ -1,0 +1,2 @@
+export declare const useSyncScrollWithPanTranslation: (scrollRef: React.RefObject<React.Component<Record<string, any>, Record<string, any>, any>>) => void;
+//# sourceMappingURL=useSyncScrollWithPanTranslation.d.ts.map
