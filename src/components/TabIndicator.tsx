@@ -46,7 +46,7 @@ const TabIndicator = React.memo((props: TabIndicatorProps) => {
     let width = fromTabWidth + (toTabWidth - fromTabWidth) * progress;
     
     if (tabBarType === 'primary') {
-      // Add centering offset: (tabWidth - contentWidth) / 2
+      // For primary tabs, center the indicator on the tab content
       const fromCenterOffset = (fromTabWidth - fromContentWidth) / 2;
       const toCenterOffset = (toTabWidth - toContentWidth) / 2;
       const centerOffset = fromCenterOffset + (toCenterOffset - fromCenterOffset) * progress;

@@ -74,7 +74,6 @@ const CollapsibleTabViewInner = React.memo<{
 const CollapsibleScrollContainer = React.memo<{
   headerHeight: number;
   tabBarHeight: number;
-  viewportHeight: number;
   refreshing: boolean;
   onRefresh?: () => void;
   refreshControlColor?: string;
@@ -82,6 +81,7 @@ const CollapsibleScrollContainer = React.memo<{
   tabBarElement: React.ReactNode;
   contentAreaHeight: number;
   tabViewCarouselRef: React.RefObject<CarouselImperativeHandle | null>;
+  currentActiveRouteKey: string;
 }>(({
   headerHeight,
   tabBarHeight,
@@ -92,13 +92,16 @@ const CollapsibleScrollContainer = React.memo<{
   tabBarElement,
   contentAreaHeight,
   tabViewCarouselRef,
+  currentActiveRouteKey,
 }) => {
   const outerScrollRef = useAnimatedRef<Animated.ScrollView>();
   const { 
     outerScrollY, 
     innerScrollY, 
-    maxInnerContentHeight,
     setContentAreaHeight,
+    getInnerContentHeight,
+    activeRouteKey,
+    setActiveRouteKey,
   } = useCollapsibleContext();
 
   // Set the content area height in context (this is the viewport for inner scroll)
@@ -108,16 +111,30 @@ const CollapsibleScrollContainer = React.memo<{
     }
   }, [contentAreaHeight, setContentAreaHeight]);
 
-  // Calculate the max scroll for inner content
-  // maxInnerContentHeight is the MAX content height across all tabs
-  // contentAreaHeight is the viewport height (from parent container)
-  const reportedMaxInnerScroll = Math.max(0, maxInnerContentHeight - contentAreaHeight);
+  // Update active route key when it changes
+  useEffect(() => {
+    if (currentActiveRouteKey && activeRouteKey !== currentActiveRouteKey) {
+      setActiveRouteKey(currentActiveRouteKey);
+    }
+  }, [currentActiveRouteKey, activeRouteKey, setActiveRouteKey]);
+
+  // Get the ACTIVE tab's content height (not max across all tabs)
+  // This ensures scroll bounds match the current tab's actual content
+  const activeContentHeight = activeRouteKey ? getInnerContentHeight(activeRouteKey) : 0;
   
-  // When content height isn't known yet, use a reasonable default (5x viewport)
-  // This allows initial scrolling while FlatList measures its content
-  // The value will update dynamically as real content height is reported
+  // Check if we have valid content height data
+  const hasContentHeightData = activeContentHeight > 0;
+  
+  // Calculate the max scroll for inner content
+  // If content fits in viewport, this will be 0 (no scrolling needed)
+  const calculatedMaxInnerScroll = hasContentHeightData 
+    ? Math.max(0, activeContentHeight - contentAreaHeight)
+    : 0;
+  
+  // Only use default when we DON'T have content height data yet
+  // Once we have data, use the calculated value (even if it's 0)
   const defaultMinScroll = contentAreaHeight > 0 ? contentAreaHeight * 5 : 2000;
-  const maxInnerScroll = reportedMaxInnerScroll > 0 ? reportedMaxInnerScroll : defaultMinScroll;
+  const maxInnerScroll = hasContentHeightData ? calculatedMaxInnerScroll : defaultMinScroll;
   
   // Total outer scroll content height:
   // - Header (scrolls away)
@@ -437,7 +454,6 @@ export const CollapsibleTabView = React.memo(
                   <CollapsibleScrollContainer
                     headerHeight={tabViewHeaderLayout.height}
                     tabBarHeight={tabBarLayout.height}
-                    viewportHeight={tabViewLayout.height}
                     refreshing={refreshing}
                     onRefresh={onRefresh}
                     refreshControlColor={refreshControlColor}
@@ -445,6 +461,7 @@ export const CollapsibleTabView = React.memo(
                     tabBarElement={tabBarElement}
                     contentAreaHeight={contentAreaHeight}
                     tabViewCarouselRef={tabViewCarouselRef}
+                    currentActiveRouteKey={routes[currentRouteIndex]?.key || ''}
                   />
                 </HeaderContextProvider>
               </CollapsibleContextProvider>
