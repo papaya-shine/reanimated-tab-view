@@ -11,7 +11,6 @@ import Animated, {
   scrollTo,
   useAnimatedReaction,
   useAnimatedRef,
-  runOnJS,
 } from 'react-native-reanimated';
 import { RTVScrollViewWithoutScrollHandler } from './RTVScrollView';
 import type { FlatListProps } from 'react-native';
@@ -94,7 +93,6 @@ function _RTVFlatList<T>(
   // Register this FlatList with the collapsible context
   useEffect(() => {
     if (isCollapsibleMode && flatListRef.current) {
-      console.log('[RTVFlatList] Registering for route:', routeKey);
       collapsibleContext.registerInnerScroll(routeKey, flatListRef.current);
     }
   }, [isCollapsibleMode, collapsibleContext, routeKey]);
@@ -105,7 +103,6 @@ function _RTVFlatList<T>(
     // Track max height we've ever seen for this FlatList
     if (h > maxContentHeightRef.current) {
       maxContentHeightRef.current = h;
-      console.log('[RTVFlatList] New max content height for route', routeKey, ':', h);
       
       if (isCollapsibleMode) {
         collapsibleContext.setInnerContentHeight(routeKey, h);
@@ -121,14 +118,6 @@ function _RTVFlatList<T>(
     onLayout?.(event);
   }, [onLayout]);
 
-  // Log inner scroll sync (called from worklet via runOnJS)
-  const logInnerScroll = useCallback((innerY: number) => {
-    // Only log occasionally to avoid spam (and not for 0)
-    if (innerY > 0 && Math.floor(innerY) % 200 === 0) {
-      console.log('[RTVFlatList] Syncing innerScrollY:', innerY, 'for route:', routeKey);
-    }
-  }, [routeKey]);
-
   // Sync scroll position from outer scroll (collapsible mode only)
   // This runs on UI thread and syncs the inner FlatList scroll position
   useAnimatedReaction(
@@ -136,11 +125,10 @@ function _RTVFlatList<T>(
     (innerY) => {
       'worklet';
       if (isCollapsibleMode) {
-        runOnJS(logInnerScroll)(innerY);
         scrollTo(flatListAnimatedRef, 0, innerY, false);
       }
     },
-    [isCollapsibleMode, logInnerScroll]
+    [isCollapsibleMode]
   );
 
   // Sync the regular ref to the animated ref

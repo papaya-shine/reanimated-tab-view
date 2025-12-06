@@ -17,7 +17,6 @@ import Animated, {
   useSharedValue,
   useAnimatedRef,
   useAnimatedScrollHandler,
-  runOnJS,
 } from 'react-native-reanimated';
 
 // Suppress the VirtualizedList warning - this is expected in collapsible header patterns
@@ -110,14 +109,6 @@ const CollapsibleScrollContainer = React.memo<{
     }
   }, [contentAreaHeight, setContentAreaHeight]);
 
-  console.log('[CollapsibleScrollContainer] Render with:', {
-    headerHeight,
-    tabBarHeight,
-    viewportHeight,
-    contentAreaHeight,
-    maxInnerContentHeight,
-  });
-
   // Calculate the max scroll for inner content
   // maxInnerContentHeight is the MAX content height across all tabs
   // contentAreaHeight is the viewport height (from parent container)
@@ -129,46 +120,14 @@ const CollapsibleScrollContainer = React.memo<{
   const defaultMinScroll = contentAreaHeight > 0 ? contentAreaHeight * 5 : 2000;
   const maxInnerScroll = reportedMaxInnerScroll > 0 ? reportedMaxInnerScroll : defaultMinScroll;
   
-  console.log('[CollapsibleScrollContainer] Scroll calculations:', {
-    maxInnerContentHeight,
-    contentAreaHeight,
-    reportedMaxInnerScroll,
-    defaultMinScroll,
-    maxInnerScroll,
-    usingDefault: reportedMaxInnerScroll <= 0,
-  });
-  
   // Total outer scroll content height:
   // - Header (scrolls away)
   // - Tab bar (sticks)
   // - Content area height (viewport for inner content)
   // - Additional space to allow scrolling inner content via outer scroll
   const outerContentHeight = useMemo(() => {
-    const height = headerHeight + tabBarHeight + contentAreaHeight + maxInnerScroll;
-    console.log('[CollapsibleScrollContainer] outerContentHeight calculated:', {
-      outerContentHeight: height,
-      headerHeight,
-      tabBarHeight,
-      contentAreaHeight,
-      maxInnerScroll,
-      maxInnerContentHeight,
-      maxScrollPosition: height - viewportHeight,
-    });
-    return height;
-  }, [headerHeight, tabBarHeight, contentAreaHeight, maxInnerScroll, maxInnerContentHeight, viewportHeight]);
-
-  // Log scroll position (called from worklet via runOnJS)
-  const logScrollPosition = useCallback((outerY: number, innerY: number, contentOffsetY: number) => {
-    // Only log occasionally to avoid spam (and not for 0)
-    if (outerY > 0 && Math.floor(outerY) % 200 === 0) {
-      console.log('[CollapsibleScrollContainer] Scroll:', {
-        contentOffsetY,
-        outerScrollY: outerY,
-        innerScrollY: innerY,
-        headerHeight,
-      });
-    }
-  }, [headerHeight]);
+    return headerHeight + tabBarHeight + contentAreaHeight + maxInnerScroll;
+  }, [headerHeight, tabBarHeight, contentAreaHeight, maxInnerScroll]);
 
   // Animated scroll handler - syncs outer scroll to inner scroll
   const scrollHandler = useAnimatedScrollHandler({
@@ -180,9 +139,6 @@ const CollapsibleScrollContainer = React.memo<{
       // Inner starts scrolling after header is collapsed
       const newInnerY = Math.max(0, y - headerHeight);
       innerScrollY.value = newInnerY;
-      
-      // Log for debugging (throttled)
-      runOnJS(logScrollPosition)(y, newInnerY, event.contentOffset.y);
     },
   });
 

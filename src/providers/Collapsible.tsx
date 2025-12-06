@@ -104,13 +104,11 @@ export const CollapsibleContextProvider = React.memo<CollapsibleContextProviderP
     
     // Set content area height
     const setContentAreaHeight = useCallback((height: number) => {
-      console.log('[Collapsible Context] setContentAreaHeight:', height);
       setContentAreaHeightState(height);
     }, []);
     
     // Register inner scroll ref for a route
     const registerInnerScroll = useCallback((routeKey: string, ref: any) => {
-      console.log('[Collapsible Context] registerInnerScroll:', routeKey);
       innerScrollRefsMap.current.set(routeKey, ref);
     }, []);
     
@@ -121,7 +119,6 @@ export const CollapsibleContextProvider = React.memo<CollapsibleContextProviderP
     
     // Set inner content height for a route
     const setInnerContentHeight = useCallback((routeKey: string, contentHeight: number) => {
-      console.log('[Collapsible Context] setInnerContentHeight:', { routeKey, contentHeight });
       setInnerContentHeightsMap(prev => {
         const newMap = new Map(prev);
         newMap.set(routeKey, contentHeight);
@@ -136,7 +133,6 @@ export const CollapsibleContextProvider = React.memo<CollapsibleContextProviderP
     
     // Set active route key
     const setActiveRouteKey = useCallback((key: string) => {
-      console.log('[Collapsible Context] setActiveRouteKey:', key);
       setActiveRouteKeyState(key);
     }, []);
     
@@ -146,7 +142,6 @@ export const CollapsibleContextProvider = React.memo<CollapsibleContextProviderP
       innerContentHeightsMap.forEach((height) => {
         if (height > max) max = height;
       });
-      console.log('[Collapsible Context] maxInnerContentHeight:', max, 'from', innerContentHeightsMap.size, 'tabs');
       return max;
     }, [innerContentHeightsMap]);
 
