@@ -8,6 +8,8 @@ type HeaderContext = {
         lower: number;
         upper: number;
     };
+    refreshOverscrollSV: SharedValue<number>;
+    isRefreshTriggeredSV: SharedValue<boolean>;
 };
 declare const HeaderContext: React.Context<HeaderContext>;
 type HeaderContextProviderProps = {

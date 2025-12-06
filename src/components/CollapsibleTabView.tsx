@@ -85,7 +85,6 @@ const CollapsibleScrollContainer = React.memo<{
 }>(({
   headerHeight,
   tabBarHeight,
-  viewportHeight,
   refreshing,
   onRefresh,
   refreshControlColor,

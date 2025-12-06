@@ -31,6 +31,9 @@ type PropsContext = {
     onIndexChange?: (index: number) => void;
     onSwipeEnd?: () => void;
     onSwipeStart?: () => void;
+    refreshing?: boolean;
+    onRefresh?: () => void;
+    refreshControlColor?: string;
 };
 declare const PropsContext: React.Context<PropsContext>;
 type PropsContextProviderProps = {

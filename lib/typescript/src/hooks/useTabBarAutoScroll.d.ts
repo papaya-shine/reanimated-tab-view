@@ -5,7 +5,7 @@ type AutoScrollToRouteIndexParams = {
     shouldScrollToIndex: boolean;
     animated: boolean;
 };
-export declare const useTabBarAutoScroll: (flatListRef: RefObject<FlatList>, currentRouteIndex: number, layout: Layout) => {
+export declare const useTabBarAutoScroll: (flatListRef: RefObject<FlatList | null>, currentRouteIndex: number, layout: Layout) => {
     autoScrollToRouteIndex: (routeIndex: number, params?: Partial<AutoScrollToRouteIndexParams>) => void;
     handleScrollToIndexFailed: ({ index: routeIndex }: {
         index: number;

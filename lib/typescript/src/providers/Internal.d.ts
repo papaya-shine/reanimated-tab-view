@@ -3,7 +3,7 @@ import type { SharedValue } from 'react-native-reanimated';
 import type { CarouselImperativeHandle } from '../components/TabViewCarousel';
 import type { Layout, Route } from '../types/common';
 type InternalContext = {
-    tabViewCarouselRef: React.RefObject<CarouselImperativeHandle>;
+    tabViewCarouselRef: React.RefObject<CarouselImperativeHandle | null>;
     animatedRouteIndex: SharedValue<number>;
     initialRouteIndex: number;
     currentRouteIndex: number;

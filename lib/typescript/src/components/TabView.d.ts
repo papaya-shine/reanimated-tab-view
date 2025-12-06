@@ -2,7 +2,13 @@
 import React from 'react';
 import { type TabViewMethods } from '../types/TabView';
 import type { Layout } from '../types/common';
-export declare const TabViewWithoutProviders: React.MemoExoticComponent<() => JSX.Element>;
+/**
+ * TabView - Main entry point
+ *
+ * Automatically chooses between:
+ * - CollapsibleTabView: when renderHeader is provided (new native scroll architecture)
+ * - StaticTabView: when no header (simple fixed tab bar)
+ */
 export declare const TabView: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<import("react-native").ViewProps, "children"> & {
     onIndexChange: (index: number) => void;
     navigationState: import("../types/common").NavigationState;
@@ -25,5 +31,8 @@ export declare const TabView: React.MemoExoticComponent<React.ForwardRefExoticCo
     renderHeader?: ((props: import("../types/common").HeaderRendererProps) => React.ReactNode) | undefined;
     onSwipeStart?: (() => void) | undefined;
     onSwipeEnd?: (() => void) | undefined;
+    refreshing?: boolean | undefined;
+    onRefresh?: (() => void) | undefined;
+    refreshControlColor?: string | undefined;
 } & React.RefAttributes<TabViewMethods>>>;
 //# sourceMappingURL=TabView.d.ts.map

@@ -45,6 +45,9 @@ export type TabViewProps = Omit<ViewProps, 'children'> & {
     renderHeader?: (props: HeaderRendererProps) => React.ReactNode;
     onSwipeStart?: () => void;
     onSwipeEnd?: () => void;
+    refreshing?: boolean;
+    onRefresh?: () => void;
+    refreshControlColor?: string;
 };
 export type TabViewMethods = {
     jumpTo: (routeKey: string) => void;
