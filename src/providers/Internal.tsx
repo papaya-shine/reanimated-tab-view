@@ -5,7 +5,7 @@ import type { Layout, Route } from '../types/common';
 import { noop } from '../constants/common';
 
 type InternalContext = {
-  tabViewCarouselRef: React.RefObject<CarouselImperativeHandle>;
+  tabViewCarouselRef: React.RefObject<CarouselImperativeHandle | null>;
   animatedRouteIndex: SharedValue<number>;
   initialRouteIndex: number;
   currentRouteIndex: number;
@@ -25,7 +25,7 @@ type InternalContext = {
 
 const InternalContext = createContext<InternalContext>({
   tabViewCarouselRef: { current: null },
-  animatedRouteIndex: { value: 0 },
+  animatedRouteIndex: { value: 0 } as SharedValue<number>,
   initialRouteIndex: 0,
   currentRouteIndex: 0,
   routes: [],

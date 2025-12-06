@@ -53,7 +53,7 @@ export const TabBar = React.memo((props: TabBarProps) => {
   //#endregion
 
   //#region variables
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList | null>(null);
 
   const data: Route[] = routes;
   //#endregion

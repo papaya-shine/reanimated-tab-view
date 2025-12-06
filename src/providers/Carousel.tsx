@@ -11,8 +11,8 @@ type CarouselContext = {
 
 const CarouselContext = createContext<CarouselContext>({
   translationPerSceneContainer: 0,
-  swipeTranslationXSV: { value: 0 },
-  currentRouteIndexSV: { value: 0 },
+  swipeTranslationXSV: { value: 0 } as SharedValue<number>,
+  currentRouteIndexSV: { value: 0 } as SharedValue<number>,
 });
 
 export const CarouselContextProvider = React.memo(

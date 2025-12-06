@@ -1,122 +1,114 @@
 import React, { forwardRef, useImperativeHandle, useMemo } from 'react';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedRef,
-  useAnimatedStyle,
 } from 'react-native-reanimated';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, RefreshControl } from 'react-native';
 import type { ScrollView } from 'react-native';
 
-import { useHeaderContext } from '../../providers/Header';
 import { useInternalContext } from '../../providers/Internal';
+import { usePropsContext } from '../../providers/Props';
 import { useScrollHandlers } from '../../hooks/scrollable/useScrollHandlers';
 import { useSyncScrollWithPanTranslation } from '../../hooks/scrollable/useSyncScrollWithPanTranslation';
-import { SHOULD_RENDER_ABSOLUTE_HEADER } from '../../constants/scrollable';
 
+/**
+ * RTVScrollViewWithoutScrollHandler
+ * 
+ * In COLLAPSIBLE mode (renderHeader provided):
+ * - Scroll is always enabled (nested scroll handles coordination)
+ * - No RefreshControl (handled by outer scroll)
+ * 
+ * In STATIC mode (no renderHeader):
+ * - Normal scrolling behavior
+ * - Can have its own RefreshControl (user-provided or from TabView props)
+ */
 export const RTVScrollViewWithoutScrollHandler = React.memo(
   forwardRef<
     React.ForwardedRef<Animated.ScrollView>,
     React.ComponentProps<typeof ScrollView>
   >((props, ref) => {
-    //#region props
-    const { children, ...rest } = props;
-    //#endregion
+    const { 
+      children, 
+      refreshControl: userProvidedRefreshControl,
+      contentContainerStyle,
+      scrollEnabled: userScrollEnabled = true,
+      ...rest 
+    } = props;
 
-    //#region context
-    const { animatedTranslateYSV } = useHeaderContext();
+    const { tabViewCarouselLayout } = useInternalContext();
+    const { renderHeader, refreshing, onRefresh, refreshControlColor } = usePropsContext();
 
-    const { tabViewHeaderLayout, tabBarLayout, tabViewCarouselLayout } =
-      useInternalContext();
-
-    //#endregion
-
-    //#region variables
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
-    const scrollGesture = useMemo(
-      () =>
-        Gesture.Native()
-          .shouldCancelWhenOutside(false)
-          .disallowInterruption(true),
-      []
-    );
-    //#endregion
+    // Check if we're in collapsible mode (has renderHeader)
+    const isCollapsibleMode = !!renderHeader;
 
-    //#region styles
-    const animatedContentContainerStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateY: animatedTranslateYSV.value }],
-      };
-    }, [animatedTranslateYSV]);
-
-    const translatingContentContainerStyle = useMemo(() => {
+    // Content container style - simplified for both modes
+    const finalContentContainerStyle = useMemo(() => {
       return [
-        animatedContentContainerStyle,
+        styles.contentContainer,
         {
-          paddingBottom: tabViewHeaderLayout.height,
-          minHeight: tabViewCarouselLayout.height + tabViewHeaderLayout.height,
+          minHeight: tabViewCarouselLayout.height,
+          flexGrow: 1,
         },
+        contentContainerStyle,
       ];
-    }, [
-      animatedContentContainerStyle,
-      tabViewCarouselLayout.height,
-      tabViewHeaderLayout.height,
-    ]);
+    }, [tabViewCarouselLayout.height, contentContainerStyle]);
 
-    const nonTranslatingContentContainerStyle = useMemo(() => {
-      return {
-        paddingTop: tabBarLayout.height + tabViewHeaderLayout.height,
-        minHeight: tabViewCarouselLayout.height + tabViewHeaderLayout.height,
-      };
-    }, [
-      tabBarLayout.height,
-      tabViewCarouselLayout.height,
-      tabViewHeaderLayout.height,
-    ]);
-    //#endregion
-
-    //#region hooks
     useImperativeHandle(ref, () => scrollRef.current as any);
 
-    useSyncScrollWithPanTranslation(scrollRef);
-    //#endregion
+    // Only sync with pan translation in legacy scenarios
+    // In new collapsible mode, outer scroll handles everything
+    if (!isCollapsibleMode) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useSyncScrollWithPanTranslation(scrollRef as any);
+    }
 
-    //#region render
+    // Determine RefreshControl:
+    // 1. In collapsible mode: NO RefreshControl (outer scroll has it)
+    // 2. In static mode with user-provided refreshControl: use user's
+    // 3. In static mode with TabView's onRefresh: create one
+    // 4. Otherwise: no RefreshControl
+    let finalRefreshControl: React.ReactElement | undefined = undefined;
+
+    if (!isCollapsibleMode) {
+      if (userProvidedRefreshControl) {
+        finalRefreshControl = userProvidedRefreshControl as React.ReactElement;
+      } else if (onRefresh) {
+        finalRefreshControl = (
+          <RefreshControl
+            refreshing={refreshing ?? false}
+            onRefresh={onRefresh}
+            tintColor={refreshControlColor}
+            colors={refreshControlColor ? [refreshControlColor] : undefined}
+          />
+        );
+      }
+    }
+
     return (
-      <GestureDetector gesture={scrollGesture}>
-        <Animated.ScrollView ref={scrollRef} {...rest} scrollEventThrottle={16}>
-          {SHOULD_RENDER_ABSOLUTE_HEADER ? (
-            <Animated.View
-              style={[
-                styles.contentContainer,
-                nonTranslatingContentContainerStyle,
-              ]}
-            >
-              {children}
-            </Animated.View>
-          ) : (
-            <Animated.View
-              style={[
-                styles.contentContainer,
-                translatingContentContainerStyle,
-              ]}
-            >
-              {children}
-            </Animated.View>
-          )}
-        </Animated.ScrollView>
-      </GestureDetector>
+      <Animated.ScrollView
+        ref={scrollRef}
+        {...rest}
+        scrollEventThrottle={16}
+        nestedScrollEnabled={true}
+        scrollEnabled={userScrollEnabled}
+        contentContainerStyle={finalContentContainerStyle}
+        refreshControl={finalRefreshControl as any}
+      >
+        {children}
+      </Animated.ScrollView>
     );
-    //#endregion
   })
 );
 
+/**
+ * RTVScrollView - With scroll handlers
+ */
 export const RTVScrollView = React.memo(
   forwardRef<
     React.ForwardedRef<Animated.ScrollView>,
     React.ComponentProps<typeof ScrollView>
   >((props, ref) => {
-    //#region props
     const {
       onScroll,
       onScrollEndDrag,
@@ -125,9 +117,7 @@ export const RTVScrollView = React.memo(
       onMomentumScrollBegin,
       ...rest
     } = props;
-    //#endregion
 
-    //#region variables
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
     const handleScroll = useScrollHandlers({
@@ -137,13 +127,9 @@ export const RTVScrollView = React.memo(
       onMomentumScrollEnd,
       onMomentumScrollBegin,
     });
-    //#endregion
 
-    //#region hooks
     useImperativeHandle(ref, () => scrollRef.current as any);
-    //#endregion
 
-    //#region render
     return (
       <RTVScrollViewWithoutScrollHandler
         {...rest}
@@ -151,12 +137,11 @@ export const RTVScrollView = React.memo(
         ref={ref}
       />
     );
-    //#endregion
   })
 );
 
 const styles = StyleSheet.create({
   contentContainer: {
-    flex: 1,
+    flexGrow: 1,
   },
 });

@@ -22,10 +22,10 @@ export const useSyncScrollWithPanTranslation = (
           (scrollToY === translateYBounds.upper &&
             scrollYSV.value <= translateYBounds.upper))
       ) {
-        scrollTo(scrollRef, 0, scrollToY, false);
+        scrollTo(scrollRef as any, 0, scrollToY, false);
       } else {
         if (gestureSourceSV.value === GestureSource.PAN) {
-          scrollTo(scrollRef, 0, scrollToY, false);
+          scrollTo(scrollRef as any, 0, scrollToY, false);
         }
       }
     },

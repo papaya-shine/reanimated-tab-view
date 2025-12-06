@@ -12,7 +12,7 @@ type SceneRendererContext = {
 const SceneRendererContext = createContext<SceneRendererContext>({
   route: { key: '', title: '' },
   isRouteFocused: false,
-  scrollYSV: { value: 0 },
+  scrollYSV: { value: 0 } as SharedValue<number>,
 });
 
 type SceneRendererContextProviderProps = {

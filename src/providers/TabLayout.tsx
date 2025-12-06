@@ -20,9 +20,9 @@ type TabLayoutContext = {
 const TabLayoutContext = createContext<TabLayoutContext>({
   routeIndexToTabContentWidthMap: {},
   setRouteIndexToTabContentWidthMap: noop,
-  routeIndexToTabWidthMapSV: { value: {} },
-  routeIndexToTabOffsetMapSV: { value: {} },
-  routeIndexToTabContentWidthMapSV: { value: {} },
+  routeIndexToTabWidthMapSV: { value: {} } as SharedValue<RouteIndexToTabWidthMap>,
+  routeIndexToTabOffsetMapSV: { value: {} } as SharedValue<RouteIndexToTabOffsetMap>,
+  routeIndexToTabContentWidthMapSV: { value: {} } as SharedValue<RouteIndexToTabContentWidthMap>,
 });
 
 export const TabLayoutContextProvider: React.FC<React.PropsWithChildren<object>> = React.memo(

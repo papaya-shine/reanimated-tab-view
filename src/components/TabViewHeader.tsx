@@ -38,7 +38,7 @@ export const TabViewHeader = React.memo<TabViewHeaderProps>(({ style }) => {
   });
 
   return (
-    <Animated.View onLayout={onTabViewHeaderLayout} style={style}>
+    <Animated.View onLayout={onTabViewHeaderLayout as any} style={style as any}>
       {renderHeader?.({
         collapsedPercentage: collapsedPercentageSV,
         collapsedHeaderHeight: collapsedHeaderHeightSV,

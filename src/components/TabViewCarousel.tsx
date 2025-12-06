@@ -131,7 +131,7 @@ const TabViewCarouselWithoutProviders = React.memo(
                   {
                     left: renderOffset,
                   },
-                  sceneContainerStyle,
+                  sceneContainerStyle as any,
                   swipeTranslationAnimatedStyle,
                 ]}
               >

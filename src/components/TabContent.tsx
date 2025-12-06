@@ -30,7 +30,7 @@ export const TabContent = React.memo<TabContentProps>((props) => {
           styles.activeLabel,
           animatedActiveLabelStyle,
           activeColorStyle,
-          labelStyle,
+          labelStyle as any,
         ]}
       >
         {label}
@@ -45,7 +45,7 @@ export const TabContent = React.memo<TabContentProps>((props) => {
           styles.inactiveLabel,
           animatedInactiveLabelStyle,
           inactiveColorStyle,
-          labelStyle,
+          labelStyle as any,
         ]}
       >
         {label}

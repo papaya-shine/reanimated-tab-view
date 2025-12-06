@@ -71,8 +71,8 @@ const TabIndicator = React.memo((props: TabIndicatorProps) => {
           tabBarType === 'primary' && styles.primaryTabIndicator,
           tabBarPosition === 'top' && styles.topTabIndicator,
           tabBarPosition === 'bottom' && styles.bottomTabIndicator,
-          tabBarIndicatorStyle,
-          style,
+          tabBarIndicatorStyle as any,
+          style as any,
         ]}
       />
     </Animated.View>

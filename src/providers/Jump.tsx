@@ -16,11 +16,11 @@ type JumpContext = {
 const JumpContext = createContext<JumpContext>({
   isJumping: false,
   setIsJumping: noop,
-  jumpEndRouteIndexSV: { value: null },
+  jumpEndRouteIndexSV: { value: null } as SharedValue<number | null>,
   smoothJumpStartRouteIndex: 0,
   setSmoothJumpStartRouteIndex: noop,
-  smoothJumpStartRouteIndexSV: { value: 0 },
-  smoothJumpStartRouteTranslationXSV: { value: 0 },
+  smoothJumpStartRouteIndexSV: { value: 0 } as SharedValue<number>,
+  smoothJumpStartRouteTranslationXSV: { value: 0 } as SharedValue<number>,
 });
 
 export const JumpContextProvider = React.memo(function JumpContextProvider({

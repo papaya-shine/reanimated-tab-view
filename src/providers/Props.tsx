@@ -43,6 +43,10 @@ type PropsContext = {
   onIndexChange?: (index: number) => void;
   onSwipeEnd?: () => void;
   onSwipeStart?: () => void;
+  // Pull-to-refresh props
+  refreshing?: boolean;
+  onRefresh?: () => void;
+  refreshControlColor?: string;
 };
 
 const PropsContext = createContext<PropsContext>({
@@ -73,6 +77,10 @@ const PropsContext = createContext<PropsContext>({
   onSwipeEnd: undefined,
   onSwipeStart: undefined,
   onIndexChange: undefined,
+  // Pull-to-refresh defaults
+  refreshing: false,
+  onRefresh: undefined,
+  refreshControlColor: undefined,
 });
 
 type PropsContextProviderProps = {

@@ -6,8 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { View, StyleSheet } from 'react-native';
-import Animated, { useSharedValue } from 'react-native-reanimated';
-import { GestureDetector } from 'react-native-gesture-handler';
+import { useSharedValue } from 'react-native-reanimated';
 
 import TabViewCarousel, {
   type CarouselImperativeHandle,
@@ -24,47 +23,31 @@ import {
 import { PropsContextProvider, usePropsContext } from '../providers/Props';
 import { SCROLLABLE_TAB_WIDTH, TAB_BAR_HEIGHT } from '../constants/tabBar';
 import useHandleIndexChange from '../hooks/useHandlerIndexChange';
-import { TabViewHeader } from './TabViewHeader';
 import { HeaderContextProvider } from '../providers/Header';
-import { useGestureContentTranslateYStyle } from '../hooks/scrollable/useGestureContentTranslateYStyle';
-import { useScrollLikePanGesture } from '../hooks/scrollable/useScrollLikePanGesture';
-import { SHOULD_RENDER_ABSOLUTE_HEADER } from '../constants/scrollable';
+import { CollapsibleTabView } from './CollapsibleTabView';
 
-export const TabViewWithoutProviders = React.memo(() => {
-  //#region context
+/**
+ * StaticTabViewContent - For non-collapsible mode (no renderHeader)
+ * 
+ * In this mode:
+ * - Tab bar is fixed at top/bottom
+ * - No header to collapse
+ * - RefreshControl is handled per-tab in the content (via RTVFlatList/RTVScrollView)
+ */
+const StaticTabViewContent = React.memo(() => {
   const { tabBarPosition, tabBarStyle, tabStyle, tabLabelStyle, renderTabBar } =
     usePropsContext();
 
   const { tabViewLayout, tabViewCarouselRef, setTabViewLayout } =
     useInternalContext();
-  //#endregion
 
-  //#region styles
   const containerLayoutStyle = useMemo(() => {
     const width: number | `${number}%` = tabViewLayout?.width || '100%';
     return { width };
   }, [tabViewLayout]);
 
-  const translatingTabViewContentStyle = useMemo(() => {
-    return tabViewLayout.height
-      ? {
-          height: tabViewLayout.height,
-        }
-      : { flex: 1 };
-  }, [tabViewLayout]);
-
-  const animatedTranslateYStyle = useGestureContentTranslateYStyle();
-  //#endregion
-
-  //#region variables
-  const scrollLikePanGesture = useScrollLikePanGesture();
-  //#endregion
-
-  //#region hooks
   useHandleIndexChange();
-  //#endregion
 
-  //#region callbacks
   const onTabViewLayout = useCallback(
     ({ nativeEvent }: LayoutChangeEvent) => {
       const { width, height } = nativeEvent.layout;
@@ -76,9 +59,7 @@ export const TabViewWithoutProviders = React.memo(() => {
     },
     [setTabViewLayout]
   );
-  //#endregion
 
-  //#region render memos
   const tabBar = useMemo(() => {
     if (renderTabBar) {
       return renderTabBar({
@@ -97,52 +78,26 @@ export const TabViewWithoutProviders = React.memo(() => {
       />
     );
   }, [renderTabBar, tabStyle, tabLabelStyle, tabBarStyle]);
-  //#endregion
 
-  //#region render
   return (
-    <>
-      {SHOULD_RENDER_ABSOLUTE_HEADER ? (
-        <View
-          style={[styles.container, containerLayoutStyle]}
-          onLayout={onTabViewLayout}
-        >
-          <View style={styles.absoluteHeaderContainer}>
-            <GestureDetector gesture={scrollLikePanGesture}>
-              <Animated.View style={animatedTranslateYStyle}>
-                <TabViewHeader />
-                {tabBarPosition === 'top' && tabBar}
-                {tabBarPosition === 'bottom' && tabBar}
-              </Animated.View>
-            </GestureDetector>
-          </View>
-          <TabViewCarousel ref={tabViewCarouselRef} />
-        </View>
-      ) : (
-        <GestureDetector gesture={scrollLikePanGesture}>
-          <View
-            style={[styles.container, containerLayoutStyle]}
-            onLayout={onTabViewLayout}
-          >
-            <TabViewHeader style={animatedTranslateYStyle} />
-            <Animated.View
-              style={[translatingTabViewContentStyle, animatedTranslateYStyle]}
-            >
-              {tabBarPosition === 'top' && tabBar}
-              <TabViewCarousel ref={tabViewCarouselRef} />
-              {tabBarPosition === 'bottom' && tabBar}
-            </Animated.View>
-          </View>
-        </GestureDetector>
-      )}
-    </>
+    <View
+      style={[styles.container, containerLayoutStyle]}
+      onLayout={onTabViewLayout}
+    >
+      <View style={styles.contentWrapper}>
+        {tabBarPosition === 'top' && tabBar}
+        <TabViewCarousel ref={tabViewCarouselRef as React.Ref<CarouselImperativeHandle>} />
+        {tabBarPosition === 'bottom' && tabBar}
+      </View>
+    </View>
   );
-  //#endregion
 });
 
-export const TabView = React.memo(
+/**
+ * StaticTabView - Wrapper with providers for non-collapsible mode
+ */
+const StaticTabView = React.memo(
   React.forwardRef<TabViewMethods, TabViewProps>((props, ref) => {
-    //#region props
     const {
       navigationState,
       initialLayout,
@@ -155,11 +110,14 @@ export const TabView = React.memo(
       tabBarConfig,
       jumpMode = 'smooth',
       sceneContainerGap = 0,
-      renderHeader,
       renderScene,
       onIndexChange,
       onSwipeEnd,
       onSwipeStart,
+      // Pull-to-refresh props (for static mode, these are passed to content)
+      refreshing = false,
+      onRefresh,
+      refreshControlColor,
     } = props;
 
     const {
@@ -174,9 +132,8 @@ export const TabView = React.memo(
       tabLabelStyle,
       renderTabBar,
     } = tabBarConfig ?? {};
-    //#endregion
 
-    //#region variables
+    // Layout state
     const [tabViewLayout, setTabViewLayout] = useState<Layout>({
       width: 0,
       height: 0,
@@ -200,46 +157,30 @@ export const TabView = React.memo(
       ...initialLayout?.tabViewHeader,
     });
 
-    const tabViewCarouselRef = useRef<CarouselImperativeHandle>(null);
-
+    const tabViewCarouselRef = useRef<CarouselImperativeHandle | null>(null);
     const animatedRouteIndex = useSharedValue(navigationState.index);
-
     const [initialRouteIndex] = useState(navigationState.index);
-    const [currentRouteIndex, setCurrentRouteIndex] =
-      useState(initialRouteIndex);
+    const [currentRouteIndex, setCurrentRouteIndex] = useState(initialRouteIndex);
 
-    const routes = useMemo(
-      () => navigationState.routes,
-      [navigationState.routes]
-    );
+    const routes = useMemo(() => navigationState.routes, [navigationState.routes]);
     const noOfRoutes = routes.length;
 
     const tabBarDynamicWidthEnabled = useMemo(() => {
       if (_tabBarDynamicWidthEnabled !== undefined) {
         return _tabBarDynamicWidthEnabled;
       }
-      if (tabBarType === 'primary') {
-        return true;
-      }
-      return false;
+      return tabBarType === 'primary';
     }, [_tabBarDynamicWidthEnabled, tabBarType]);
-    //#endregion
 
-    //#region handlers
     const jumpTo = useCallback((routeKey: string) => {
       tabViewCarouselRef.current?.jumpToRoute(routeKey);
     }, []);
-    //#endregion
 
-    //#region hooks
-    useImperativeHandle(ref, () => ({
-      jumpTo,
-    }));
-    //#endregion
+    useImperativeHandle(ref, () => ({ jumpTo }), [jumpTo]);
 
-    //#region context
-    const propsContextValue = useMemo(() => {
-      return {
+    // Context values
+    const propsContextValue = useMemo(
+      () => ({
         navigationState,
         renderMode,
         tabBarType,
@@ -260,40 +201,47 @@ export const TabView = React.memo(
         providedAnimatedRouteIndexSV,
         renderTabBar,
         renderScene,
-        renderHeader,
+        renderHeader: undefined, // No header in static mode
         onIndexChange,
         onSwipeEnd,
         onSwipeStart,
-      };
-    }, [
-      navigationState,
-      renderMode,
-      tabBarType,
-      tabBarPosition,
-      tabBarScrollEnabled,
-      tabBarDynamicWidthEnabled,
-      scrollableTabWidth,
-      tabBarStyle,
-      tabBarIndicatorStyle,
-      tabStyle,
-      tabLabelStyle,
-      swipeEnabled,
-      jumpMode,
-      sceneContainerGap,
-      sceneContainerStyle,
-      tabViewCarouselStyle,
-      keyboardDismissMode,
-      providedAnimatedRouteIndexSV,
-      renderTabBar,
-      renderScene,
-      renderHeader,
-      onIndexChange,
-      onSwipeEnd,
-      onSwipeStart,
-    ]);
+        // Pull-to-refresh (for static mode, content handles this)
+        refreshing,
+        onRefresh,
+        refreshControlColor,
+      }),
+      [
+        navigationState,
+        renderMode,
+        tabBarType,
+        tabBarPosition,
+        tabBarScrollEnabled,
+        tabBarDynamicWidthEnabled,
+        scrollableTabWidth,
+        tabBarStyle,
+        tabBarIndicatorStyle,
+        tabStyle,
+        tabLabelStyle,
+        swipeEnabled,
+        jumpMode,
+        sceneContainerGap,
+        sceneContainerStyle,
+        tabViewCarouselStyle,
+        keyboardDismissMode,
+        providedAnimatedRouteIndexSV,
+        renderTabBar,
+        renderScene,
+        onIndexChange,
+        onSwipeEnd,
+        onSwipeStart,
+        refreshing,
+        onRefresh,
+        refreshControlColor,
+      ]
+    );
 
-    const internalContextValue = useMemo(() => {
-      return {
+    const internalContextValue = useMemo(
+      () => ({
         tabViewLayout,
         tabViewHeaderLayout,
         tabBarLayout,
@@ -310,33 +258,27 @@ export const TabView = React.memo(
         setTabViewHeaderLayout,
         setTabBarLayout,
         setTabViewCarouselLayout,
-      };
-    }, [
-      tabViewLayout,
-      tabViewHeaderLayout,
-      tabBarLayout,
-      tabViewCarouselLayout,
-      tabViewCarouselRef,
-      routes,
-      noOfRoutes,
-      animatedRouteIndex,
-      currentRouteIndex,
-      setCurrentRouteIndex,
-      initialRouteIndex,
-      jumpTo,
-      setTabViewLayout,
-      setTabViewHeaderLayout,
-      setTabBarLayout,
-      setTabViewCarouselLayout,
-    ]);
-    //#endregion
+      }),
+      [
+        tabViewLayout,
+        tabViewHeaderLayout,
+        tabBarLayout,
+        tabViewCarouselLayout,
+        routes,
+        noOfRoutes,
+        animatedRouteIndex,
+        currentRouteIndex,
+        initialRouteIndex,
+        jumpTo,
+      ]
+    );
 
     return (
       <PropsContextProvider value={propsContextValue}>
         <InternalContextProvider value={internalContextValue}>
           <TabLayoutContextProvider>
             <HeaderContextProvider>
-              <TabViewWithoutProviders />
+              <StaticTabViewContent />
             </HeaderContextProvider>
           </TabLayoutContextProvider>
         </InternalContextProvider>
@@ -345,17 +287,33 @@ export const TabView = React.memo(
   })
 );
 
+/**
+ * TabView - Main entry point
+ * 
+ * Automatically chooses between:
+ * - CollapsibleTabView: when renderHeader is provided (new native scroll architecture)
+ * - StaticTabView: when no header (simple fixed tab bar)
+ */
+export const TabView = React.memo(
+  React.forwardRef<TabViewMethods, TabViewProps>((props, ref) => {
+    const { renderHeader } = props;
+
+    // Use new CollapsibleTabView for collapsible header mode
+    if (renderHeader) {
+      return <CollapsibleTabView {...props} ref={ref} />;
+    }
+
+    // Use StaticTabView for non-collapsible mode
+    return <StaticTabView {...props} ref={ref} />;
+  })
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
   },
-  absoluteHeaderContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
+  contentWrapper: {
+    flex: 1,
   },
 });
