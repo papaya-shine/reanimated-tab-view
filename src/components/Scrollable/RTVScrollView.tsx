@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useMemo } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
 import Animated, {
   useAnimatedRef,
 } from 'react-native-reanimated';
@@ -63,22 +63,56 @@ export const RTVScrollViewWithoutScrollHandler = React.memo(
       useSyncScrollWithPanTranslation(scrollRef as any);
     }
 
+    // Extract tintColor from user-provided RefreshControl or context
+    const userTintColor = userProvidedRefreshControl 
+      ? (userProvidedRefreshControl as React.ReactElement<any>).props?.tintColor 
+      : refreshControlColor;
+
+    // iOS workaround: Apply tintColor after a short delay
+    // (iOS doesn't apply tintColor correctly on initial render)
+    const [delayedTintColor, setDelayedTintColor] = useState<string | undefined>(undefined);
+    
+    useEffect(() => {
+      if (userTintColor) {
+        const timer = setTimeout(() => {
+          setDelayedTintColor(userTintColor);
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+      setDelayedTintColor(undefined);
+      return undefined;
+    }, [userTintColor]);
+
     // Determine RefreshControl:
     // 1. In collapsible mode: NO RefreshControl (outer scroll has it)
-    // 2. In static mode with user-provided refreshControl: use user's
-    // 3. In static mode with TabView's onRefresh: create one
+    // 2. In static mode with user-provided refreshControl: recreate with delayed tintColor
+    // 3. In static mode with TabView's onRefresh: create one with delayed tintColor
     // 4. Otherwise: no RefreshControl
     let finalRefreshControl: React.ReactElement | undefined;
 
     if (!isCollapsibleMode) {
       if (userProvidedRefreshControl) {
-        finalRefreshControl = userProvidedRefreshControl as React.ReactElement;
+        // Recreate RefreshControl with delayed tintColor for iOS workaround
+        const rcProps = (userProvidedRefreshControl as React.ReactElement<any>).props || {};
+        finalRefreshControl = (
+          <RefreshControl
+            refreshing={rcProps.refreshing ?? false}
+            onRefresh={rcProps.onRefresh}
+            tintColor={delayedTintColor}
+            colors={rcProps.colors}
+            title={rcProps.title}
+            titleColor={rcProps.titleColor}
+            progressBackgroundColor={rcProps.progressBackgroundColor}
+            progressViewOffset={rcProps.progressViewOffset}
+            size={rcProps.size}
+          />
+        );
       } else if (onRefresh) {
         finalRefreshControl = (
           <RefreshControl
             refreshing={refreshing ?? false}
             onRefresh={onRefresh}
-            tintColor={refreshControlColor}
+            tintColor={delayedTintColor}
             colors={refreshControlColor ? [refreshControlColor] : undefined}
           />
         );
