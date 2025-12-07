@@ -176,8 +176,6 @@ function _RTVFlatList<T>(
       refreshControl={finalRefreshControl}
       // Disable bounce when scroll is disabled
       bounces={effectiveScrollEnabled}
-      // Show scrollbar only when scrollable
-      showsVerticalScrollIndicator={effectiveScrollEnabled}
     />
   );
 }

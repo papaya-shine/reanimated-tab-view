@@ -169,7 +169,7 @@ const CollapsibleScrollContainer = React.memo<{
       scrollEventThrottle={16}
       bounces={true}
       alwaysBounceVertical={true}
-      showsVerticalScrollIndicator={true}
+      showsVerticalScrollIndicator={false}
       // Sticky tab bar at index 1 (after header)
       stickyHeaderIndices={[1]}
       // Native RefreshControl - this is why we use outer scroll for gestures!
