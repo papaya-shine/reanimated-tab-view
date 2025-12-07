@@ -28,7 +28,7 @@ import { CollapsibleTabView } from './CollapsibleTabView';
 
 /**
  * StaticTabViewContent - For non-collapsible mode (no renderHeader)
- * 
+ *
  * In this mode:
  * - Tab bar is fixed at top/bottom
  * - No header to collapse
@@ -289,7 +289,7 @@ const StaticTabView = React.memo(
 
 /**
  * TabView - Main entry point
- * 
+ *
  * Automatically chooses between:
  * - CollapsibleTabView: when renderHeader is provided (new native scroll architecture)
  * - StaticTabView: when no header (simple fixed tab bar)

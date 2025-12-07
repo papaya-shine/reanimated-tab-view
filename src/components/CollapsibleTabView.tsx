@@ -38,13 +38,13 @@ import useHandleIndexChange from '../hooks/useHandlerIndexChange';
 
 /**
  * CollapsibleTabView - Instagram-style collapsible header with gesture continuity
- * 
+ *
  * Architecture:
  * - Outer ScrollView is the "master" - handles ALL vertical gestures
  * - Inner FlatList is non-scrollable, synced programmatically via scrollTo
  * - Single continuous gesture: collapse header → scroll content
  * - RefreshControl works natively on outer scroll
- * 
+ *
  * Scroll sync:
  * - outerScrollY: 0 to (headerHeight + maxInnerScroll)
  * - innerScrollY = max(0, outerScrollY - headerHeight)
@@ -95,9 +95,9 @@ const CollapsibleScrollContainer = React.memo<{
   currentActiveRouteKey,
 }) => {
   const outerScrollRef = useAnimatedRef<Animated.ScrollView>();
-  const { 
-    outerScrollY, 
-    innerScrollY, 
+  const {
+    outerScrollY,
+    innerScrollY,
     setContentAreaHeight,
     getInnerContentHeight,
     activeRouteKey,
@@ -121,21 +121,21 @@ const CollapsibleScrollContainer = React.memo<{
   // Get the ACTIVE tab's content height (not max across all tabs)
   // This ensures scroll bounds match the current tab's actual content
   const activeContentHeight = activeRouteKey ? getInnerContentHeight(activeRouteKey) : 0;
-  
+
   // Check if we have valid content height data
   const hasContentHeightData = activeContentHeight > 0;
-  
+
   // Calculate the max scroll for inner content
   // If content fits in viewport, this will be 0 (no scrolling needed)
-  const calculatedMaxInnerScroll = hasContentHeightData 
+  const calculatedMaxInnerScroll = hasContentHeightData
     ? Math.max(0, activeContentHeight - contentAreaHeight)
     : 0;
-  
+
   // Only use default when we DON'T have content height data yet
   // Once we have data, use the calculated value (even if it's 0)
   const defaultMinScroll = contentAreaHeight > 0 ? contentAreaHeight * 5 : 2000;
   const maxInnerScroll = hasContentHeightData ? calculatedMaxInnerScroll : defaultMinScroll;
-  
+
   // Total outer scroll content height:
   // - Header (scrolls away)
   // - Tab bar (sticks)
@@ -150,7 +150,7 @@ const CollapsibleScrollContainer = React.memo<{
     onScroll: (event) => {
       const y = event.contentOffset.y;
       outerScrollY.value = y;
-      
+
       // Calculate inner scroll position
       // Inner starts scrolling after header is collapsed
       const newInnerY = Math.max(0, y - headerHeight);
@@ -423,7 +423,7 @@ export const CollapsibleTabView = React.memo(
 
     // Header element
     const headerElement = useMemo(() => {
-      if (!renderHeader) return null;
+      if (!renderHeader) {return null;}
 
       return (
         <View onLayout={onHeaderLayout}>

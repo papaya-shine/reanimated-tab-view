@@ -22,42 +22,42 @@ const TabIndicator = React.memo((props: TabIndicatorProps) => {
     const fromIndex = Math.floor(animatedRouteIndex.value);
     const toIndex = Math.ceil(animatedRouteIndex.value);
     const progress = animatedRouteIndex.value - fromIndex;
-    
+
     // Calculate translateX for fromIndex (sum of widths up to fromIndex)
     let fromTranslateX = 0;
     for (let i = 0; i < fromIndex; i++) {
       fromTranslateX += routeIndexToTabWidthMapSV.value[i] ?? 0;
     }
-    
+
     // Calculate translateX for toIndex (sum of widths up to toIndex)
     let toTranslateX = 0;
     for (let i = 0; i < toIndex; i++) {
       toTranslateX += routeIndexToTabWidthMapSV.value[i] ?? 0;
     }
-    
+
     // Get widths for interpolation
     const fromTabWidth = routeIndexToTabWidthMapSV.value[fromIndex] ?? 0;
     const toTabWidth = routeIndexToTabWidthMapSV.value[toIndex] ?? 0;
     const fromContentWidth = routeIndexToTabContentWidthMapSV.value[fromIndex] ?? 0;
     const toContentWidth = routeIndexToTabContentWidthMapSV.value[toIndex] ?? 0;
-    
+
     // For primary tabs, center the indicator on the tab content
     let finalTranslateX = fromTranslateX + (toTranslateX - fromTranslateX) * progress;
     let width = fromTabWidth + (toTabWidth - fromTabWidth) * progress;
-    
+
     if (tabBarType === 'primary') {
       // For primary tabs, center the indicator on the tab content
       const fromCenterOffset = (fromTabWidth - fromContentWidth) / 2;
       const toCenterOffset = (toTabWidth - toContentWidth) / 2;
       const centerOffset = fromCenterOffset + (toCenterOffset - fromCenterOffset) * progress;
-      
+
       finalTranslateX += centerOffset;
       width = fromContentWidth + (toContentWidth - fromContentWidth) * progress;
     }
 
-    return { 
-      transform: [{ translateX: finalTranslateX }], 
-      width
+    return {
+      transform: [{ translateX: finalTranslateX }],
+      width,
     };
   }, [tabBarType]);
 

@@ -21,14 +21,14 @@ import { useInternalContext } from '../../providers/Internal';
 
 /**
  * RTVFlatList - FlatList component for use within TabView
- * 
+ *
  * In COLLAPSIBLE mode:
  * - scrollEnabled={false} - outer ScrollView handles all gestures
  * - Reports content height to context (keyed by route)
  * - Syncs scroll position from outer scroll via useAnimatedReaction
  * - Viewport height comes from parent container, NOT from FlatList's onLayout
  *   (because with scrollEnabled={false}, FlatList expands to fit content)
- * 
+ *
  * In STATIC mode:
  * - Normal scrolling behavior
  * - Can have its own RefreshControl
@@ -56,10 +56,10 @@ function _RTVFlatList<T>(
 
   // Use animated ref for UI thread access
   const flatListAnimatedRef = useAnimatedRef<Animated.FlatList<T>>();
-  
+
   // Regular ref for JS thread operations
   const flatListRef = useRef<Animated.FlatList<T>>(null);
-  
+
   const maxContentHeightRef = useRef(0);
 
   const handleScroll = useScrollHandlers({
@@ -85,11 +85,11 @@ function _RTVFlatList<T>(
 
   // Get collapsible context
   const collapsibleContext = useCollapsibleContext();
-  
+
   // Determine the route key for this FlatList
   // Try explicit prop first, then try to infer from current route
   const routeKey = explicitRouteKey || routes[currentRouteIndex]?.key || 'unknown';
-  
+
   // Register this FlatList with the collapsible context
   useEffect(() => {
     if (isCollapsibleMode && flatListRef.current) {
@@ -103,12 +103,12 @@ function _RTVFlatList<T>(
     // Track max height we've ever seen for this FlatList
     if (h > maxContentHeightRef.current) {
       maxContentHeightRef.current = h;
-      
+
       if (isCollapsibleMode) {
         collapsibleContext.setInnerContentHeight(routeKey, h);
       }
     }
-    
+
     onContentSizeChange?.(w, h);
   }, [isCollapsibleMode, onContentSizeChange, collapsibleContext, routeKey]);
 
@@ -143,7 +143,7 @@ function _RTVFlatList<T>(
     : { renderScrollComponent: renderScrollComponent as any };
 
   // Determine RefreshControl (only for static mode)
-  let finalRefreshControl: React.ReactElement | undefined = undefined;
+  let finalRefreshControl: React.ReactElement | undefined;
 
   if (!isCollapsibleMode) {
     if (userProvidedRefreshControl) {

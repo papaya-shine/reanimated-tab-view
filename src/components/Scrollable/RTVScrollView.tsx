@@ -12,11 +12,11 @@ import { useSyncScrollWithPanTranslation } from '../../hooks/scrollable/useSyncS
 
 /**
  * RTVScrollViewWithoutScrollHandler
- * 
+ *
  * In COLLAPSIBLE mode (renderHeader provided):
  * - Scroll is always enabled (nested scroll handles coordination)
  * - No RefreshControl (handled by outer scroll)
- * 
+ *
  * In STATIC mode (no renderHeader):
  * - Normal scrolling behavior
  * - Can have its own RefreshControl (user-provided or from TabView props)
@@ -26,12 +26,12 @@ export const RTVScrollViewWithoutScrollHandler = React.memo(
     React.ForwardedRef<Animated.ScrollView>,
     React.ComponentProps<typeof ScrollView>
   >((props, ref) => {
-    const { 
-      children, 
+    const {
+      children,
       refreshControl: userProvidedRefreshControl,
       contentContainerStyle,
       scrollEnabled: userScrollEnabled = true,
-      ...rest 
+      ...rest
     } = props;
 
     const { tabViewCarouselLayout } = useInternalContext();
@@ -68,7 +68,7 @@ export const RTVScrollViewWithoutScrollHandler = React.memo(
     // 2. In static mode with user-provided refreshControl: use user's
     // 3. In static mode with TabView's onRefresh: create one
     // 4. Otherwise: no RefreshControl
-    let finalRefreshControl: React.ReactElement | undefined = undefined;
+    let finalRefreshControl: React.ReactElement | undefined;
 
     if (!isCollapsibleMode) {
       if (userProvidedRefreshControl) {

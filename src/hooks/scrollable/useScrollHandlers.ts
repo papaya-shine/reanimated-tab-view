@@ -40,7 +40,7 @@ export const useScrollHandlers = ({
     useHeaderContext();
 
   const { isRouteFocused, scrollYSV } = useSceneRendererContext();
-  
+
   const { onRefresh, refreshing } = usePropsContext();
 
   const onBeginDrag = useCallback(() => {
@@ -56,7 +56,7 @@ export const useScrollHandlers = ({
     (event: NativeScrollEvent) => {
       'worklet';
       scrollYSV.value = event.contentOffset.y;
-      
+
       if (!isRouteFocused) {
         return;
       }
@@ -132,7 +132,7 @@ export const useScrollHandlers = ({
 
       // Reset refresh state
       isRefreshTriggeredSV.value = false;
-      
+
       if (_onScrollEndDrag) {
         runOnJS(_onScrollEndDrag)({
           nativeEvent: event,

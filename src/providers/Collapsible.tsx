@@ -13,7 +13,7 @@ import {
 
 /**
  * Collapsible scroll coordination context
- * 
+ *
  * This enables the "master scroll" pattern where:
  * - Outer ScrollView handles all gestures (including RefreshControl)
  * - Inner FlatList is non-scrollable, synced programmatically
@@ -23,31 +23,31 @@ import {
 export type CollapsibleContextType = {
   // Header
   headerHeight: number;
-  
+
   // Viewport height (set by CollapsibleScrollContainer, not FlatList)
   contentAreaHeight: number;
   setContentAreaHeight: (height: number) => void;
-  
+
   // Inner scroll registration - keyed by route
   registerInnerScroll: (routeKey: string, ref: any) => void;
   getInnerScrollRef: (routeKey: string) => any;
-  
+
   // Inner content size - keyed by route (each tab has its own content height)
   setInnerContentHeight: (routeKey: string, contentHeight: number) => void;
   getInnerContentHeight: (routeKey: string) => number;
-  
+
   // Active route (to know which tab's content height to use)
   activeRouteKey: string;
   setActiveRouteKey: (key: string) => void;
-  
+
   // Max content height across all tabs (for scroll calculations)
   maxInnerContentHeight: number;
-  
+
   // Scroll sync shared values
   outerScrollY: SharedValue<number>;
   innerScrollY: SharedValue<number>;
   isHeaderCollapsed: SharedValue<boolean>;
-  
+
   // Refresh
   refreshing: boolean;
   onRefresh?: () => void;
@@ -56,12 +56,16 @@ export type CollapsibleContextType = {
 const CollapsibleContext = createContext<CollapsibleContextType>({
   headerHeight: 0,
   contentAreaHeight: 0,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setContentAreaHeight: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   registerInnerScroll: () => {},
   getInnerScrollRef: () => null,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setInnerContentHeight: () => {},
   getInnerContentHeight: () => 0,
   activeRouteKey: '',
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setActiveRouteKey: () => {},
   maxInnerContentHeight: 0,
   outerScrollY: { value: 0 } as SharedValue<number>,
@@ -87,36 +91,36 @@ export const CollapsibleContextProvider = React.memo<CollapsibleContextProviderP
   }) {
     // Content area height (viewport for inner scroll) - set by CollapsibleScrollContainer
     const [contentAreaHeight, setContentAreaHeightState] = useState(0);
-    
+
     // Inner scroll refs - keyed by route
     const innerScrollRefsMap = useRef<Map<string, any>>(new Map());
-    
+
     // Inner content heights - keyed by route
     const [innerContentHeightsMap, setInnerContentHeightsMap] = useState<Map<string, number>>(new Map());
-    
+
     // Active route key
     const [activeRouteKey, setActiveRouteKeyState] = useState('');
-    
+
     // Shared values for scroll positions
     const outerScrollY = useSharedValue(0);
     const innerScrollY = useSharedValue(0);
     const isHeaderCollapsed = useSharedValue(false);
-    
+
     // Set content area height
     const setContentAreaHeight = useCallback((height: number) => {
       setContentAreaHeightState(height);
     }, []);
-    
+
     // Register inner scroll ref for a route
     const registerInnerScroll = useCallback((routeKey: string, ref: any) => {
       innerScrollRefsMap.current.set(routeKey, ref);
     }, []);
-    
+
     // Get inner scroll ref for a route
     const getInnerScrollRef = useCallback((routeKey: string) => {
       return innerScrollRefsMap.current.get(routeKey);
     }, []);
-    
+
     // Set inner content height for a route
     const setInnerContentHeight = useCallback((routeKey: string, contentHeight: number) => {
       setInnerContentHeightsMap(prev => {
@@ -125,22 +129,22 @@ export const CollapsibleContextProvider = React.memo<CollapsibleContextProviderP
         return newMap;
       });
     }, []);
-    
+
     // Get inner content height for a route
     const getInnerContentHeight = useCallback((routeKey: string) => {
       return innerContentHeightsMap.get(routeKey) || 0;
     }, [innerContentHeightsMap]);
-    
+
     // Set active route key
     const setActiveRouteKey = useCallback((key: string) => {
       setActiveRouteKeyState(key);
     }, []);
-    
+
     // Calculate max content height across all tabs
     const maxInnerContentHeight = useMemo(() => {
       let max = 0;
       innerContentHeightsMap.forEach((height) => {
-        if (height > max) max = height;
+        if (height > max) {max = height;}
       });
       return max;
     }, [innerContentHeightsMap]);

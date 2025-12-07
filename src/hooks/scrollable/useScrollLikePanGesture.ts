@@ -26,7 +26,7 @@ const ACTIVE_OFFSET_Y: [number, number] = [-10, 10];
 export const useScrollLikePanGesture = () => {
   const { animatedTranslateYSV, gestureSourceSV, translateYBounds, refreshOverscrollSV, isRefreshTriggeredSV } =
     useHeaderContext();
-  
+
   const { onRefresh, refreshing } = usePropsContext();
 
   const initialTranslateYSV = useSharedValue(0);
