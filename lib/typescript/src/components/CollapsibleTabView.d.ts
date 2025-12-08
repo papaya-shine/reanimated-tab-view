@@ -30,5 +30,6 @@ export declare const CollapsibleTabView: React.MemoExoticComponent<React.Forward
     refreshing?: boolean | undefined;
     onRefresh?: (() => void) | undefined;
     refreshControlColor?: string | undefined;
+    refreshControlBackgroundColor?: string | undefined;
 } & React.RefAttributes<TabViewMethods>>>;
 //# sourceMappingURL=CollapsibleTabView.d.ts.map

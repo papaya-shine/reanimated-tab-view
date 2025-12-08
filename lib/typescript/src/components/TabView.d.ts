@@ -34,5 +34,6 @@ export declare const TabView: React.MemoExoticComponent<React.ForwardRefExoticCo
     refreshing?: boolean | undefined;
     onRefresh?: (() => void) | undefined;
     refreshControlColor?: string | undefined;
+    refreshControlBackgroundColor?: string | undefined;
 } & React.RefAttributes<TabViewMethods>>>;
 //# sourceMappingURL=TabView.d.ts.map

@@ -77,6 +77,7 @@ const CollapsibleScrollContainer = React.memo<{
   refreshing: boolean;
   onRefresh?: () => void;
   refreshControlColor?: string;
+  refreshControlBackgroundColor?: string;
   headerElement: React.ReactNode;
   tabBarElement: React.ReactNode;
   contentAreaHeight: number;
@@ -88,6 +89,7 @@ const CollapsibleScrollContainer = React.memo<{
   refreshing,
   onRefresh,
   refreshControlColor,
+  refreshControlBackgroundColor,
   headerElement,
   tabBarElement,
   contentAreaHeight,
@@ -196,7 +198,8 @@ const CollapsibleScrollContainer = React.memo<{
             refreshing={refreshing}
             onRefresh={onRefresh}
             tintColor={delayedTintColor}
-            colors={refreshControlColor ? [refreshControlColor] : undefined}
+            colors={refreshControlBackgroundColor ? [refreshControlBackgroundColor] : undefined}
+            progressBackgroundColor={refreshControlColor}
           />
         ) : undefined
       }
@@ -248,6 +251,7 @@ export const CollapsibleTabView = React.memo(
       refreshing = false,
       onRefresh,
       refreshControlColor,
+      refreshControlBackgroundColor,
     } = props;
 
     const {
@@ -353,6 +357,7 @@ export const CollapsibleTabView = React.memo(
         refreshing,
         onRefresh,
         refreshControlColor,
+        refreshControlBackgroundColor,
       }),
       [
         navigationState,
@@ -382,6 +387,7 @@ export const CollapsibleTabView = React.memo(
         refreshing,
         onRefresh,
         refreshControlColor,
+        refreshControlBackgroundColor,
       ]
     );
 
@@ -474,6 +480,7 @@ export const CollapsibleTabView = React.memo(
                     refreshing={refreshing}
                     onRefresh={onRefresh}
                     refreshControlColor={refreshControlColor}
+                    refreshControlBackgroundColor={refreshControlBackgroundColor}
                     headerElement={headerElement}
                     tabBarElement={tabBarElement}
                     contentAreaHeight={contentAreaHeight}

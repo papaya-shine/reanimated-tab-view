@@ -15,12 +15,12 @@ import type { FlatListProps } from 'react-native';
  * - Normal scrolling behavior
  * - Can have its own RefreshControl
  */
-declare function _RTVFlatList<T>(props: FlatListProps<T> & {
+declare function RTVFlatListInner<T>(props: FlatListProps<T> & {
     routeKey?: string;
 }, ref: React.ForwardedRef<Animated.FlatList<T>>): JSX.Element;
 export declare const RTVFlatList: <T>(props: FlatListProps<T> & {
     ref?: React.ForwardedRef<Animated.FlatList<T>> | undefined;
     routeKey?: string | undefined;
-}) => ReturnType<typeof _RTVFlatList>;
+}) => ReturnType<typeof RTVFlatListInner>;
 export {};
 //# sourceMappingURL=RTVFlatList.d.ts.map

@@ -48,6 +48,7 @@ export type TabViewProps = Omit<ViewProps, 'children'> & {
     refreshing?: boolean;
     onRefresh?: () => void;
     refreshControlColor?: string;
+    refreshControlBackgroundColor?: string;
 };
 export type TabViewMethods = {
     jumpTo: (routeKey: string) => void;
