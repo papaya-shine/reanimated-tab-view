@@ -61,6 +61,7 @@
     "@react-native/babel-preset": "^0.73.20",
     "@react-native/eslint-config": "^0.72.2",
     "@release-it/conventional-changelog": "^5.0.0",
+    "@shopify/flash-list": "^1.6.0",
     "@types/jest": "^28.1.2",
     "@types/react": "~17.0.21",
     "@types/react-native": "0.70.0",
@@ -87,10 +88,16 @@
     "@types/react": "17.0.21"
   },
   "peerDependencies": {
+    "@shopify/flash-list": ">=1.4.0",
     "react": "*",
     "react-native": "*",
     "react-native-gesture-handler": ">=2.9.0",
     "react-native-reanimated": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@shopify/flash-list": {
+      "optional": true
+    }
   },
   "workspaces": [
     "example"

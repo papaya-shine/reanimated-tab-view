@@ -86,6 +86,14 @@ Open a Terminal in the project root and run:
 yarn add reanimated-tab-view
 ```
 
+### Optional: FlashList Support
+
+For high-performance lists with complex items, you can use `RTVFlashList` instead of `RTVFlatList`. This requires installing [@shopify/flash-list](https://shopify.github.io/flash-list/):
+
+```sh
+yarn add @shopify/flash-list
+```
+
 ## Quick Start
 
 ```js
@@ -132,6 +140,54 @@ export default function TabViewExample() {
 }
 ```
 
+## Using FlashList for Performance
+
+For tabs with large lists or complex grid layouts, use `RTVFlashList` for significantly better performance:
+
+```js
+import { TabView, RTVFlashList } from 'reanimated-tab-view';
+
+const ProductGrid = ({ route }) => {
+  const products = useProducts();
+  
+  return (
+    <RTVFlashList
+      data={products}
+      renderItem={({ item }) => <ProductCard product={item} />}
+      estimatedItemSize={200}  // Required! Average height of your items
+      numColumns={2}           // For grid layouts
+      routeKey={route.key}     // Required for collapsible header sync
+    />
+  );
+};
+
+const renderScene = ({ route }) => {
+  switch (route.key) {
+    case 'products':
+      return <ProductGrid route={route} />;
+    case 'reviews':
+      return <ReviewList route={route} />;
+    default:
+      return null;
+  }
+};
+
+// Works with collapsible headers and pull-to-refresh!
+<TabView
+  navigationState={{ index, routes }}
+  renderScene={renderScene}
+  renderHeader={() => <ProfileHeader />}
+  onRefresh={handleRefresh}
+  refreshing={isRefreshing}
+  onIndexChange={setIndex}
+/>
+```
+
+**Key differences from `RTVFlatList`:**
+- `estimatedItemSize` is **required** - provide the average height of your list items
+- Better recycling for smoother scrolling with many items
+- Optimized for grids and complex item layouts
+
 ## Props
 
 | Name                   | Description                                                                                                                                                       | Required | Type                                                                                                                                                                   | Default   |
@@ -149,7 +205,7 @@ export default function TabViewExample() {
 | jumpMode               | Specifies the jump mode of the tab view.                                                                                                                          | No       | `'smooth'\|'scrolling'\|'no-animation'`                                                                                                                                | "smooth"  |
 | tabBarConfig           | Configuration for the tab bar.                                                                                                                                    | No       | `TabBarConfig`- For details, see below.                                                                                                                                | undefined |
 | TabViewHeaderComponent | A component to render as the tab view header.                                                                                                                     | No       | `React.ReactNode`                                                                                                                                                      | undefined |
-| renderScene            | A function that renders the scene for a given route. Use `RTVScrollView` or `RTVFlatList` in order to render collapsible headers through the `renderHeader` prop. | No       | `(props: HeaderRendererProps) => React.ReactNode`                                                                                                                      |           |
+| renderScene            | A function that renders the scene for a given route. Use `RTVScrollView`, `RTVFlatList`, or `RTVFlashList` (for high-perf lists) to render collapsible headers through the `renderHeader` prop. | No       | `(props: HeaderRendererProps) => React.ReactNode`                                                                                                                      |           |
 | renderHeader           | A function that renders the header for the tab view.                                                                                                              | No       | `(props: SceneRendererProps) => React.ReactNode`                                                                                                                       | undefined |
 | onIndexChange          | A function that is called when the index changes.                                                                                                                 | Yes      | `(index:number) => void`                                                                                                                                               |           |
 | onSwipeEnd             | Callback function for when a swipe gesture ends.                                                                                                                  | No       | Function                                                                                                                                                               | undefined |
