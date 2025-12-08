@@ -9,4 +9,5 @@ export declare const REFRESH_ANIMATION_CONFIG: {
 export declare const REFRESH_OPACITY_START_FACTOR = 0.3;
 export declare const REFRESH_OPACITY_MID = 0.7;
 export declare const REFRESH_DEFAULT_COLOR = "#0095F6";
+export declare const IOS_REFRESH_TINT_COLOR_DELAY = 300;
 //# sourceMappingURL=refresh.d.ts.map

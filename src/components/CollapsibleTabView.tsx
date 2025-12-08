@@ -11,6 +11,7 @@ import {
   StyleSheet,
   RefreshControl,
   LogBox,
+  InteractionManager,
   type LayoutChangeEvent,
 } from 'react-native';
 import Animated, {
@@ -34,6 +35,7 @@ import { PropsContextProvider } from '../providers/Props';
 import { CollapsibleContextProvider, useCollapsibleContext } from '../providers/Collapsible';
 import { HeaderContextProvider } from '../providers/Header';
 import { SCROLLABLE_TAB_WIDTH, TAB_BAR_HEIGHT } from '../constants/tabBar';
+import { IOS_REFRESH_TINT_COLOR_DELAY } from '../constants/refresh';
 import useHandleIndexChange from '../hooks/useHandlerIndexChange';
 
 /**
@@ -106,20 +108,23 @@ const CollapsibleScrollContainer = React.memo<{
     setActiveRouteKey,
   } = useCollapsibleContext();
 
-  // iOS workaround: Apply tintColor after a short delay
-  // (iOS doesn't apply tintColor correctly on initial render)
+  // iOS workaround: Apply tintColor after interactions complete
+  // (iOS doesn't apply tintColor correctly on initial render, especially in release builds)
   const [delayedTintColor, setDelayedTintColor] = useState<string | undefined>(undefined);
   
   useEffect(() => {
     if (refreshControlColor) {
-      const timer = setTimeout(() => {
-        setDelayedTintColor(refreshControlColor);
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      setDelayedTintColor(undefined);
-      return;
+      // Use InteractionManager to wait for animations/interactions to complete,
+      // then add a delay for the native component to be ready
+      const interactionPromise = InteractionManager.runAfterInteractions(() => {
+        setTimeout(() => {
+          setDelayedTintColor(refreshControlColor);
+        }, IOS_REFRESH_TINT_COLOR_DELAY);
+      });
+      return () => interactionPromise.cancel();
     }
+    setDelayedTintColor(undefined);
+    return undefined;
   }, [refreshControlColor]);
 
   // Set the content area height in context (this is the viewport for inner scroll)

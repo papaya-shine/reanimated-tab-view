@@ -2,13 +2,14 @@ import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect } 
 import Animated, {
   useAnimatedRef,
 } from 'react-native-reanimated';
-import { StyleSheet, RefreshControl } from 'react-native';
+import { StyleSheet, RefreshControl, InteractionManager } from 'react-native';
 import type { ScrollView } from 'react-native';
 
 import { useInternalContext } from '../../providers/Internal';
 import { usePropsContext } from '../../providers/Props';
 import { useScrollHandlers } from '../../hooks/scrollable/useScrollHandlers';
 import { useSyncScrollWithPanTranslation } from '../../hooks/scrollable/useSyncScrollWithPanTranslation';
+import { IOS_REFRESH_TINT_COLOR_DELAY } from '../../constants/refresh';
 
 /**
  * RTVScrollViewWithoutScrollHandler
@@ -74,10 +75,14 @@ export const RTVScrollViewWithoutScrollHandler = React.memo(
     
     useEffect(() => {
       if (userTintColor) {
-        const timer = setTimeout(() => {
+      // Use InteractionManager to wait for animations/interactions to complete,
+      // then add a delay for the native component to be ready
+      const interactionPromise = InteractionManager.runAfterInteractions(() => {
+        setTimeout(() => {
           setDelayedTintColor(userTintColor);
-        }, 100);
-        return () => clearTimeout(timer);
+        }, IOS_REFRESH_TINT_COLOR_DELAY);
+      });
+        return () => interactionPromise.cancel();
       }
       setDelayedTintColor(undefined);
       return undefined;
