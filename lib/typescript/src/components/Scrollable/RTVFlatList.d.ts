@@ -10,6 +10,7 @@ import type { FlatListProps } from 'react-native';
  * - Syncs scroll position from outer scroll via useAnimatedReaction
  * - Viewport height comes from parent container, NOT from FlatList's onLayout
  *   (because with scrollEnabled={false}, FlatList expands to fit content)
+ * - onEndReached is triggered manually based on outer scroll position
  *
  * In STATIC mode:
  * - Normal scrolling behavior

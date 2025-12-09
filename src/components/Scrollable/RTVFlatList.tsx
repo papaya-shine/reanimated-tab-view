@@ -11,6 +11,8 @@ import Animated, {
   scrollTo,
   useAnimatedReaction,
   useAnimatedRef,
+  useSharedValue,
+  runOnJS,
 } from 'react-native-reanimated';
 import { RTVScrollViewWithoutScrollHandler } from './RTVScrollView';
 import type { FlatListProps } from 'react-native';
@@ -28,6 +30,7 @@ import { useInternalContext } from '../../providers/Internal';
  * - Syncs scroll position from outer scroll via useAnimatedReaction
  * - Viewport height comes from parent container, NOT from FlatList's onLayout
  *   (because with scrollEnabled={false}, FlatList expands to fit content)
+ * - onEndReached is triggered manually based on outer scroll position
  * 
  * In STATIC mode:
  * - Normal scrolling behavior
@@ -45,6 +48,8 @@ function RTVFlatListInner<T>(
     onMomentumScrollBegin,
     onContentSizeChange,
     onLayout,
+    onEndReached,
+    onEndReachedThreshold = 0.5,
     refreshControl: userProvidedRefreshControl,
     scrollEnabled: userScrollEnabled = true,
     routeKey: explicitRouteKey,
@@ -61,6 +66,17 @@ function RTVFlatListInner<T>(
   const flatListRef = useRef<Animated.FlatList<T>>(null);
   
   const maxContentHeightRef = useRef(0);
+  
+  // Track content height for onEndReached calculation in collapsible mode
+  // Using shared value so it can be read on UI thread in useAnimatedReaction
+  const contentHeightSV = useSharedValue(0);
+  
+  // Track viewport height as shared value too
+  const viewportHeightSV = useSharedValue(0);
+  
+  // Debounce onEndReached to prevent multiple rapid calls
+  const lastEndReachedTimeRef = useRef(0);
+  const END_REACHED_DEBOUNCE_MS = 500;
 
   const handleScroll = useScrollHandlers({
     onScroll,
@@ -97,6 +113,13 @@ function RTVFlatListInner<T>(
     }
   }, [isCollapsibleMode, collapsibleContext, routeKey]);
 
+  // Sync viewport height to shared value when it changes
+  useEffect(() => {
+    if (collapsibleContext.contentAreaHeight > 0) {
+      viewportHeightSV.value = collapsibleContext.contentAreaHeight;
+    }
+  }, [collapsibleContext.contentAreaHeight, viewportHeightSV]);
+
   // Handle content size change - report to context
   // Only report content HEIGHT, not viewport (viewport comes from parent)
   const handleContentSizeChange = useCallback((w: number, h: number) => {
@@ -109,8 +132,11 @@ function RTVFlatListInner<T>(
       }
     }
     
+    // Update shared value for UI thread access
+    contentHeightSV.value = h;
+    
     onContentSizeChange?.(w, h);
-  }, [isCollapsibleMode, onContentSizeChange, collapsibleContext, routeKey]);
+  }, [isCollapsibleMode, onContentSizeChange, collapsibleContext, routeKey, contentHeightSV]);
 
   // Handle layout - just pass through, don't report viewport
   // (viewport height is determined by parent container, not FlatList)
@@ -129,6 +155,55 @@ function RTVFlatListInner<T>(
       }
     },
     [isCollapsibleMode]
+  );
+
+  // Handler for onEndReached callback (called from UI thread via runOnJS)
+  // Only triggers if this route is the active route
+  const triggerEndReached = useCallback(() => {
+    // Check if this is the active route (JS check since activeRouteKey is React state)
+    if (collapsibleContext.activeRouteKey !== routeKey) {
+      return; // Not active route
+    }
+    
+    const now = Date.now();
+    if (now - lastEndReachedTimeRef.current < END_REACHED_DEBOUNCE_MS) {
+      return; // Debounce
+    }
+    lastEndReachedTimeRef.current = now;
+    
+    onEndReached?.({ distanceFromEnd: 0 });
+  }, [onEndReached, routeKey, collapsibleContext.activeRouteKey]);
+
+  // Detect end reached in collapsible mode
+  // Since the FlatList has scrollEnabled={false}, the native onEndReached won't fire
+  // We detect it manually by monitoring the outer scroll position
+  // Using shared values so the worklet can read them on the UI thread
+  useAnimatedReaction(
+    () => ({
+      scrollY: collapsibleContext.innerScrollY.value,
+      contentH: contentHeightSV.value,
+      viewportH: viewportHeightSV.value,
+    }),
+    (current) => {
+      'worklet';
+      if (!isCollapsibleMode || !onEndReached) return;
+      
+      const { scrollY, contentH, viewportH } = current;
+      
+      // Need valid dimensions
+      if (contentH <= 0 || viewportH <= 0) return;
+      
+      // Calculate distance from end
+      const maxScroll = Math.max(0, contentH - viewportH);
+      const distanceFromEnd = maxScroll - scrollY;
+      const threshold = viewportH * (onEndReachedThreshold ?? 0.5);
+      
+      // Trigger if we're within threshold of the end
+      if (distanceFromEnd <= threshold) {
+        runOnJS(triggerEndReached)();
+      }
+    },
+    [isCollapsibleMode, routeKey, onEndReached, onEndReachedThreshold, triggerEndReached]
   );
 
   // Sync the regular ref to the animated ref
