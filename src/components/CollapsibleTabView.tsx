@@ -203,8 +203,8 @@ const CollapsibleScrollContainer = React.memo<{
             refreshing={refreshing}
             onRefresh={onRefresh}
             tintColor={delayedTintColor}
-            colors={refreshControlBackgroundColor ? [refreshControlBackgroundColor] : undefined}
-            progressBackgroundColor={refreshControlColor}
+            colors={refreshControlColor ? [refreshControlColor] : undefined}
+            progressBackgroundColor={refreshControlBackgroundColor}
           />
         ) : undefined
       }
