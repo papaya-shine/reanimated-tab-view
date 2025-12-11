@@ -2,93 +2,45 @@
 
 <a href="./assets/instagram_demo.mp4"><img src="./assets/instagram_demo.gif" style="display: block; margin: 0 auto;"></a>
 
-A custom Tab View component implemented using [`react-native-reanimated`](https://github.com/software-mansion/react-native-reanimated/) and [`react-native-gesture-handler`](https://github.com/software-mansion/react-native-gesture-handler/). Props are almost entirely inter-compatible with [`react-native-tab-view`](https://github.com/satya164/react-native-tab-view)
-
-- The [example/](https://github.com/adithyavis/reanimated-tab-view/tree/main/example) folder contains reference code to use the library.
-
-## Demo
-
-<a href="./assets/assets_demo.mp4"><img src="./assets/assets_demo.gif" width="360" style="display: block; margin: 0 auto;"></a>
+A Tab View component built with [`react-native-reanimated`](https://github.com/software-mansion/react-native-reanimated/) and [`react-native-gesture-handler`](https://github.com/software-mansion/react-native-gesture-handler/). API compatible with [`react-native-tab-view`](https://github.com/satya164/react-native-tab-view).
 
 ## Features
 
-reanimated-tab-view provides the following features that are provided by react-native-tab-view
-
 - Smooth animations and gestures
-- Scrollable tabs
-- Supports both top and bottom tab bars
-- Follows Material Design spec
-- Highly customizable
-- Fully typed with [TypeScript](https://typescriptlang.org)
+- Scrollable tabs with dynamic widths
+- Top and bottom tab bar positions
+- Material Design spec compliant
+- Fully typed with TypeScript
 
-Additionally, reanimated-tab-view also provides the following features
+**Additional features over react-native-tab-view:**
 
-- Collapsible headers
+- **Collapsible headers** (Instagram-style)
 
-  - Currently supported on ios and android
+  <img src="./assets/collapsible_header.gif" width="360">
 
-    <img src="./assets/collapsible_header.gif" width="360">
+- **Render modes** (`renderMode` prop):
+  - `all` (default) - Renders all scenes on mount
+  - `windowed` - Renders current + adjacent scenes
+  - `lazy` - Renders scenes on first visit
 
-- 3 render modes to render the tab view ("all", "windowed" and "lazy"). Can be modified using the `renderMode` prop.
+- **Jump modes** (`jumpMode` prop):
+  - `smooth` (default) - Animates directly to target tab
+  - `scrolling` - Scrolls through intermediate tabs
+  - `no-animation` - Instant jump
 
-  - All render mode renders all the scenes in one go, during the initial tab view mount. When the number of scenes is large, it is recommended to use the window mode/lazy mode. This is the default render mode.
-  - Windowed render mode renders a window of scenes, including the current scene and the scenes adjascent to it. It is recommended to use this render mode when the number of scenes is large but when the render cost of each scene is not high.
-  - Lazy render mode renders the scenes one by one when they are first mounted to the view. It is recommended to use this render mode when the number of scenes is large and when the render cost of each scene is high.
-
-- Dynamic widths for tabs, based on the tab title length. For eg., if the tab title is "Tab one", the width of the tab will be smaller than if the tab title is "Tab hundred one". Can be modified using the `tabBarDynamicWidthEnabled` prop.
-
-  - This feature is in accordance with the Material Design spec.
-  - By default, this feature is enabled when the `tabBarType` prop is set to `'primary'`.
-
-    <img src="./assets/dynamic_tab_width.gif" width="360">
-
-- Customisable jump-to animations (smooth jump or scroll jump). Can be modified using the `jumpMode` prop.
-
-  - Scrolling jump: When jumped from tab one to tab four, the jump animation scrolls through the scenes in between (scenes of tab two and tab three). In case the scenes in between haven't been already rendered (while using lazy/windowed render modes), the jump-to animation will result in a momentary blank splash.
-  - Smooth jump: When jumped from tab one to tab four, the jump animation smoothly animates to the target scene of tab four without scrolling through the scenes in between. This helps prevent blank splashes when using lazy/windowed render modes. This is enabled by default.
-  - No animation: When jumped from tab one to tab four, the jump animation does not animate to the target scene of tab four. This is useful when you want to jump to a scene without any animation.
-
-    |                   Smooth Jump                    |                   Scroll Jump                    |
-    | :----------------------------------------------: | :----------------------------------------------: |
-    | <img src="./assets/smooth_jump.gif" width="360"> | <img src="./assets/scroll_jump.gif" width="360"> |
-
-> #### Upcoming features
->
-> - Accessibility
-> - RTL support
-
-## Motivation
-
-1.  The original react-native-tab-view is an amazing package, no doubt. However,
-    it is dependent on [`react-native-pager-view`](https://github.com/callstack/react-native-pager-view).
-    This dependency complicates solving issues such as
-
-- [`TabView tab index not really controlled`](https://github.com/react-navigation/react-navigation/issues/11412)
-- [`Tab label aligning vertically in some devices when render single tab.`](https://github.com/react-navigation/react-navigation/issues/11083)
-- [`Screen getting stuck when switching between the tabs while keyboard opened.`](https://github.com/react-navigation/react-navigation/issues/11301).
-
-reanimated-tab-view depends purely on react-native-reanimated, and as such, the above issues won't be encountered.
-
-2.  The swipe and jump-to behaviors in reanimated-tab-view are more controllable. Our implementation of the swipe and jump-to behaviors are built from scratch using the animation and gesture primitives offered by react-native-reanimated and react-native-gesture-handler.
-
-3.  We can't have collapsible headers in the original react-native-tab-view.
+  |                   Smooth Jump                    |                   Scroll Jump                    |
+  | :----------------------------------------------: | :----------------------------------------------: |
+  | <img src="./assets/smooth_jump.gif" width="360"> | <img src="./assets/scroll_jump.gif" width="360"> |
 
 ## Installation
 
-Install react-native-reanimated (>=4.x) and react-native-gesture-handler (>=2.x).
-
-- https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
-- https://docs.swmansion.com/react-native-gesture-handler/docs/fundamentals/installation
-
-Open a Terminal in the project root and run:
+Requires react-native-reanimated (>=4.x) and react-native-gesture-handler (>=2.x).
 
 ```sh
-yarn add reanimated-tab-view
+yarn add git+https://github.com/papaya-shine/reanimated-tab-view
 ```
 
-### Optional: FlashList Support
-
-For high-performance lists with complex items, you can use `RTVFlashList` instead of `RTVFlatList`. This requires installing [@shopify/flash-list](https://shopify.github.io/flash-list/):
+**Optional:** For high-performance lists, install [@shopify/flash-list](https://shopify.github.io/flash-list/):
 
 ```sh
 yarn add @shopify/flash-list
@@ -97,145 +49,214 @@ yarn add @shopify/flash-list
 ## Quick Start
 
 ```js
-import * as React from 'react';
-import { View, useWindowDimensions } from 'react-native';
 import { TabView } from 'reanimated-tab-view';
 
-const FirstRoute = () => (
-  <View style={{ flex: 1, backgroundColor: '#ff4081' }} />
-);
-
-const SecondRoute = () => (
-  <View style={{ flex: 1, backgroundColor: '#673ab7' }} />
-);
-
-const renderScene = ({ route }) => {
-  switch (route.key) {
-    case 'first':
-      return <FirstRoute />;
-    case 'second':
-      return <SecondRoute />;
-    default:
-      return null;
-  }
-};
-
 export default function TabViewExample() {
-  const layout = useWindowDimensions();
-
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: 'first', title: 'First' },
     { key: 'second', title: 'Second' },
   ]);
 
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case 'first':
+        return <FirstRoute />;
+      case 'second':
+        return <SecondRoute />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <TabView
       navigationState={{ index, routes }}
       renderScene={renderScene}
       onIndexChange={setIndex}
-      initialLayout={{ width: layout.width }}
     />
   );
 }
 ```
 
-## Using FlashList for Performance
+## Scrollable Components
 
-For tabs with large lists or complex grid layouts, use `RTVFlashList` for significantly better performance:
+Use these components inside your scenes for proper scroll coordination:
+
+| Component | Base | Use Case |
+|-----------|------|----------|
+| `RTVScrollView` | ScrollView | Static content |
+| `RTVFlatList` | FlatList | Standard lists |
+| `RTVFlashList` | FlashList | Large lists, grids |
+
+All components support:
+- Collapsible headers (via `renderHeader` prop on TabView)
+- Pull-to-refresh (via TabView props or custom `refreshControl`)
+
+### Example with FlashList
 
 ```js
 import { TabView, RTVFlashList } from 'reanimated-tab-view';
 
-const ProductGrid = ({ route }) => {
-  const products = useProducts();
-  
-  return (
-    <RTVFlashList
-      data={products}
-      renderItem={({ item }) => <ProductCard product={item} />}
-      estimatedItemSize={200}  // Required! Average height of your items
-      numColumns={2}           // For grid layouts
-      routeKey={route.key}     // Required for collapsible header sync
-    />
-  );
-};
+const ProductGrid = ({ route }) => (
+  <RTVFlashList
+    data={products}
+    renderItem={({ item }) => <ProductCard product={item} />}
+    estimatedItemSize={200}  // Required for FlashList
+    numColumns={2}
+  />
+);
 
-const renderScene = ({ route }) => {
-  switch (route.key) {
-    case 'products':
-      return <ProductGrid route={route} />;
-    case 'reviews':
-      return <ReviewList route={route} />;
-    default:
-      return null;
-  }
-};
-
-// Works with collapsible headers and pull-to-refresh!
 <TabView
   navigationState={{ index, routes }}
   renderScene={renderScene}
   renderHeader={() => <ProfileHeader />}
   onRefresh={handleRefresh}
   refreshing={isRefreshing}
+  refreshControlColor="#ff6600"
   onIndexChange={setIndex}
 />
 ```
 
-**Key differences from `RTVFlatList`:**
-- `estimatedItemSize` is **required** - provide the average height of your list items
-- Better recycling for smoother scrolling with many items
-- Optimized for grids and complex item layouts
+### Custom RefreshControl (Static Mode)
+
+Without collapsible headers, pass `refreshControl` directly to scrollable components:
+
+```js
+<RTVFlatList
+  data={items}
+  renderItem={({ item }) => <ItemRow item={item} />}
+  refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor="#ff6600"
+      colors={['#ff6600']}
+      progressBackgroundColor="#fff"
+    />
+  }
+/>
+```
+
+## Architecture: Collapsible Headers
+
+The collapsible header implementation uses a single-scroll-master architecture for seamless gesture handling:
+
+```
+┌─────────────────────────────────────┐
+│ Outer ScrollView (master)           │  ← Handles ALL vertical gestures
+│ ┌─────────────────────────────────┐ │
+│ │ Header                          │ │  ← Scrolls away naturally
+│ ├─────────────────────────────────┤ │
+│ │ Tab Bar (sticky)                │ │  ← stickyHeaderIndices={[1]}
+│ ├─────────────────────────────────┤ │
+│ │ Content Area                    │ │
+│ │ ┌─────────────────────────────┐ │ │
+│ │ │ Inner List (scrollEnabled=  │ │ │  ← Synced via scrollTo()
+│ │ │ false)                      │ │ │
+│ │ └─────────────────────────────┘ │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
+```
+
+### How It Works
+
+1. **Single Gesture Owner**: The outer `ScrollView` captures all vertical touch events. Inner lists have `scrollEnabled={false}`, preventing gesture conflicts.
+
+2. **Scroll Position Sync**: As the user scrolls, positions are mapped on the UI thread:
+   ```
+   outerScrollY: 0 → headerHeight → headerHeight + maxContentScroll
+   innerScrollY: 0 → 0            → maxContentScroll
+   
+   innerScrollY = max(0, outerScrollY - headerHeight)
+   ```
+
+3. **UI Thread Updates**: Inner list scroll position is updated via `useAnimatedReaction` + `scrollTo()`, running entirely on the UI thread for 60fps sync.
+
+4. **Sticky Tab Bar**: Uses native `stickyHeaderIndices={[1]}` so the tab bar sticks when the header collapses.
+
+5. **Native RefreshControl**: Because the outer ScrollView owns gestures, pull-to-refresh works natively without custom gesture handling.
+
+6. **Content Height Reporting**: Inner lists report their content height to the context. The outer scroll's content size is calculated as:
+   ```
+   outerContentHeight = headerHeight + tabBarHeight + viewportHeight + maxInnerScroll
+   ```
+
+7. **onEndReached Emulation**: Since inner lists have `scrollEnabled={false}`, native `onEndReached` won't fire. The library monitors scroll position and triggers it manually when the threshold is reached.
+
+### Why This Approach?
+
+- **Gesture continuity**: Single scroll owner means no gesture handoff issues
+- **Native feel**: Uses platform ScrollView physics and RefreshControl
+- **Performance**: All sync happens on UI thread via Reanimated worklets
+- **Simplicity**: No complex pan gesture responder chains
 
 ## Props
 
-| Name                   | Description                                                                                                                                                       | Required | Type                                                                                                                                                                   | Default   |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| navigationState        | The state of the navigation including the index and routes.                                                                                                       | Yes      | `{index: number; routes: Route;}`                                                                                                                                      |           |
-| initialLayout          | The initial layout of the tab view, tab bar etc.                                                                                                                  | No       | `{tabView?: Partial<{width: number; height: number;}>, tabViewHeader?: Partial<{width: number; height: number;}>, tabBar?: Partial<{width: number; height: number;}>}` | undefined |
-| tabViewCarouselStyle   | The style for the tab view carousel                                                                                                                               | No       | `StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>`                                                                                                               | undefined |
-| sceneContainerStyle    | The style for the scene container.                                                                                                                                | No       | `StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>`                                                                                                               | undefined |
-| sceneContainerGap      | The gap between each scene.                                                                                                                                       | No       | Number                                                                                                                                                                 | 0         |
-| keyboardDismissMode    | Specifies how to dismiss the keyboard.                                                                                                                            | No       | `'auto'\|'on-drag'\|'none'`                                                                                                                                            | 'auto'    |
-| animatedRouteIndex     | A callback equivalent. Pass a shared value and its value gets updated when tab view is swipeds                                                                    | No       | `SharedValue<number>`                                                                                                                                                  | undefined |
-| swipeEnabled           | Enables or disables swipe gestures.                                                                                                                               | No       | Boolean                                                                                                                                                                | true      |
-| sceneContainerGap      | The gap between each scene.                                                                                                                                       | No       | Number                                                                                                                                                                 | 0         |
-| renderMode             | Specifies the layout mode of the tab view.                                                                                                                        | No       | `'windowed'\|'lazy'\|'all'`                                                                                                                                            | "all"     |
-| jumpMode               | Specifies the jump mode of the tab view.                                                                                                                          | No       | `'smooth'\|'scrolling'\|'no-animation'`                                                                                                                                | "smooth"  |
-| tabBarConfig           | Configuration for the tab bar.                                                                                                                                    | No       | `TabBarConfig`- For details, see below.                                                                                                                                | undefined |
-| TabViewHeaderComponent | A component to render as the tab view header.                                                                                                                     | No       | `React.ReactNode`                                                                                                                                                      | undefined |
-| renderScene            | A function that renders the scene for a given route. Use `RTVScrollView`, `RTVFlatList`, or `RTVFlashList` (for high-perf lists) to render collapsible headers through the `renderHeader` prop. | No       | `(props: HeaderRendererProps) => React.ReactNode`                                                                                                                      |           |
-| renderHeader           | A function that renders the header for the tab view.                                                                                                              | No       | `(props: SceneRendererProps) => React.ReactNode`                                                                                                                       | undefined |
-| onIndexChange          | A function that is called when the index changes.                                                                                                                 | Yes      | `(index:number) => void`                                                                                                                                               |           |
-| onSwipeEnd             | Callback function for when a swipe gesture ends.                                                                                                                  | No       | Function                                                                                                                                                               | undefined |
-| onSwipeStart           | Callback function for when a swipe gesture starts.                                                                                                                | No       | Function                                                                                                                                                               | undefined |
+### TabView Props
 
-tabBarConfig properties are as follows:
+| Name | Description | Type | Default |
+|------|-------------|------|---------|
+| `navigationState` | Current index and routes | `{index: number; routes: Route[]}` | Required |
+| `renderScene` | Renders each tab's content | `(props: SceneRendererProps) => ReactNode` | Required |
+| `onIndexChange` | Called when tab changes | `(index: number) => void` | Required |
+| `renderHeader` | Renders collapsible header | `(props: HeaderRendererProps) => ReactNode` | - |
+| `tabBarConfig` | Tab bar configuration (see below) | `TabBarConfig` | - |
+| `renderMode` | Scene rendering strategy | `'all' \| 'windowed' \| 'lazy'` | `'all'` |
+| `jumpMode` | Tab switch animation | `'smooth' \| 'scrolling' \| 'no-animation'` | `'smooth'` |
+| `swipeEnabled` | Enable swipe gestures | `boolean` | `true` |
+| `keyboardDismissMode` | Keyboard dismiss behavior | `'auto' \| 'on-drag' \| 'none'` | `'auto'` |
+| `refreshing` | Pull-to-refresh active state | `boolean` | `false` |
+| `onRefresh` | Pull-to-refresh callback | `() => void` | - |
+| `refreshControlColor` | Spinner color (iOS tintColor, Android colors) | `string` | - |
+| `refreshControlBackgroundColor` | Background color (Android only) | `string` | - |
+| `animatedRouteIndex` | Shared value for animated index | `SharedValue<number>` | - |
+| `initialLayout` | Initial dimensions to reduce layout jitter | `{tabView?, tabViewHeader?, tabBar?}` | - |
+| `style` | Container style | `StyleProp<ViewStyle>` | - |
+| `sceneContainerStyle` | Scene container style | `StyleProp<ViewStyle>` | - |
+| `tabViewCarouselStyle` | Carousel style | `StyleProp<ViewStyle>` | - |
+| `sceneContainerGap` | Gap between scenes | `number` | `0` |
+| `onSwipeStart` | Swipe gesture start callback | `() => void` | - |
+| `onSwipeEnd` | Swipe gesture end callback | `() => void` | - |
 
-| Name                      | Description                                                                | Required | Type                                                     | Default                                               |
-| ------------------------- | -------------------------------------------------------------------------- | -------- | -------------------------------------------------------- | ----------------------------------------------------- |
-| tabBarPosition            | Specifies the position of the tab bar.                                     | No       | `'top'\|'bottom'`                                        | 'top'                                                 |
-| tabBarType                | Specifies the type of the tab bar, according to the Material Design spec.  | No       | `'primary'\|'secondary'`                                 | 'secondary'                                           |
-| tabBarScrollEnabled       | Enables or disables scrollable tab bar.                                    | No       | Boolean                                                  | true                                                  |
-| tabBarDynamicWidthEnabled | Enables dynamic width for tabs.                                            | No       | Boolean                                                  | true for primary tab bar, false for secondary tab bar |
-| scrollableTabWidth        | The width of each tab. Applicable ONLY when `tabBarScrollEnabled` is true. | No       | Number                                                   | 100                                                   |
-| tabBarStyle               | Used to modify the style for the tab bar.                                  | No       | `StyleProp<ViewStyle>`                                   | undefined                                             |
-| tabStyle                  | Used to modify the style for each style.                                   | No       | `StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>` | undefined                                             |
-| tabBarIndicatorStyle      | Used to modify the style for the tab bar indicator.                        | No       | `StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>` | undefined                                             |
-| renderTabBar              | Custom method to render the tab bar.                                       | No       | Function                                                 | undefined                                             |
+### TabBarConfig
 
-ref methods
+| Name | Description | Type | Default |
+|------|-------------|------|---------|
+| `tabBarPosition` | Tab bar position | `'top' \| 'bottom'` | `'top'` |
+| `tabBarType` | Material Design type | `'primary' \| 'secondary'` | `'secondary'` |
+| `tabBarScrollEnabled` | Enable horizontal scroll | `boolean` | `true` |
+| `tabBarDynamicWidthEnabled` | Dynamic tab widths | `boolean` | `true` for primary |
+| `scrollableTabWidth` | Fixed tab width (when scrollEnabled) | `number` | `100` |
+| `tabBarStyle` | Tab bar container style | `StyleProp<ViewStyle>` | - |
+| `tabStyle` | Individual tab style | `StyleProp<ViewStyle>` | - |
+| `tabLabelStyle` | Tab label text style | `StyleProp<TextStyle>` | - |
+| `tabBarIndicatorStyle` | Indicator style | `StyleProp<ViewStyle>` | - |
+| `renderTabBar` | Custom tab bar renderer | `(props: TabBarProps) => ReactNode` | - |
 
-- `jumpTo(routeKey: string)`: Jump to a specific route.
+### Ref Methods
 
-## Limitiations
+- `jumpTo(routeKey: string)` - Programmatically jump to a tab
 
-- This project heavily uses `onLayout` method to measure layouts of header, tabBar etc. Since the measurements are done asynchronously, one can see jitters during initial render. To avoid this, pass appropriate values to the initialLayout prop.
+## Limitations
 
-## Author
+- Uses `onLayout` for measurements, which can cause initial render jitter. Use `initialLayout` prop to mitigate.
 
-- [Adithya Viswamithiran](https://github.com/adithyavis/)
+- **Android: Use touchables from react-native-gesture-handler**
+  
+  On Android, `TouchableOpacity`, `Pressable`, and other touchables from `react-native` will not work inside tab scenes. Use the equivalents from `react-native-gesture-handler` instead:
+
+  ```js
+  // ❌ Won't work on Android
+  import { Pressable, TouchableOpacity } from 'react-native';
+
+  // ✅ Works on Android
+  import { Pressable, TouchableOpacity } from 'react-native-gesture-handler';
+  // or
+  import { RectButton, BorderlessButton } from 'react-native-gesture-handler';
+  ```
+
+  **Why?** The tab carousel is wrapped in a `GestureDetector` for horizontal swipe handling. On Android, RNGH intercepts touch events at the native level before they reach React Native's responder system. Touchables from RNGH are aware of this gesture system and receive events correctly; React Native's built-in touchables do not.
 
 ## License
 
