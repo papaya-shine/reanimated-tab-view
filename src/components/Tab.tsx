@@ -1,11 +1,10 @@
-import React, { useCallback } from 'react';
-import { Pressable, type ViewStyle, type StyleProp } from 'react-native';
-import Animated from 'react-native-reanimated';
+import React, { useCallback, useMemo } from 'react';
+import { type ViewStyle, type StyleProp } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { runOnJS } from 'react-native-reanimated';
 import { useHandleTabLayout } from '../hooks/useTabLayout';
 import type { Route, Scene } from '../types';
 import { useInternalContext } from '../providers/Internal';
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 type TabProps = React.PropsWithChildren<{
   index: number;
@@ -31,15 +30,38 @@ const Tab: React.FC<TabProps> = React.memo(
       jumpTo(route.key);
     }, [jumpTo, onTabLongPress, route]);
 
+    // Use RNGH Tap gesture instead of Pressable for proper gesture coordination
+    // This fixes Android sticky header touch issues where Pan gesture intercepts touches
+    const tapGesture = useMemo(
+      () =>
+        Gesture.Tap()
+          .onEnd(() => {
+            runOnJS(handlePressTabItem)();
+          }),
+      [handlePressTabItem]
+    );
+
+    const longPressGesture = useMemo(
+      () =>
+        Gesture.LongPress()
+          .minDuration(500)
+          .onEnd(() => {
+            runOnJS(handleLongPressTabItem)();
+          }),
+      [handleLongPressTabItem]
+    );
+
+    const composedGesture = useMemo(
+      () => Gesture.Exclusive(longPressGesture, tapGesture),
+      [longPressGesture, tapGesture]
+    );
+
     return (
-      <AnimatedPressable
-        onLayout={handleTabLayout}
-        onPress={handlePressTabItem}
-        onLongPress={handleLongPressTabItem}
-        style={style}
-      >
-        {children}
-      </AnimatedPressable>
+      <GestureDetector gesture={composedGesture}>
+        <Animated.View onLayout={handleTabLayout} style={style}>
+          {children}
+        </Animated.View>
+      </GestureDetector>
     );
   }
 );
