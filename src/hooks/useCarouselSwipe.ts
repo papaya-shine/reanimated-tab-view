@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { Platform } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
 import {
   useSharedValue,
@@ -14,7 +15,19 @@ import { usePropsContext } from '../providers/Props';
 import { useJumpContext } from '../providers/Jump';
 import { useCarouselContext } from '../providers/Carousel';
 
-const ACTIVE_OFFSET_X: [number, number] = [-10, 10];
+// Horizontal distance needed to activate swipe gesture
+const ACTIVE_OFFSET_X: [number, number] = Platform.select({
+  ios: [-10, 10],
+  android: [-10, 10], // Lower = activates sooner (try 10-20)
+  default: [-10, 10],
+});
+
+// Vertical distance that cancels the swipe (for scroll conflict on Android)
+const FAIL_OFFSET_Y: [number, number] = Platform.select({
+  ios: [-1000, 1000], // Effectively disabled on iOS
+  android: [-20, 20], // Higher = more forgiving for diagonal swipes (try 15-30)
+  default: [-1000, 1000],
+});
 
 export const useCarouselSwipePanGesture = (
   updateCurrentRouteIndex: (value: number) => void,
@@ -52,6 +65,7 @@ export const useCarouselSwipePanGesture = (
       Gesture.Pan()
         .enabled(gestureEnabled)
         .activeOffsetX(ACTIVE_OFFSET_X)
+        .failOffsetY(FAIL_OFFSET_Y)
         .onStart(() => {
           preSwipeStartswipeTranslationXSV.value = swipeTranslationXSV.value;
           runOnJS(handleSwipeStart)();
