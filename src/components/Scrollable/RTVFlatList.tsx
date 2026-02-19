@@ -249,6 +249,10 @@ function RTVFlatListInner<T>(
       nestedScrollEnabled={true}
       scrollEnabled={effectiveScrollEnabled}
       refreshControl={finalRefreshControl}
+      // In static mode, pass onEndReached to native FlatList
+      // (collapsible mode uses useAnimatedReaction instead)
+      onEndReached={!isCollapsibleMode ? onEndReached : undefined}
+      onEndReachedThreshold={!isCollapsibleMode ? onEndReachedThreshold : undefined}
       // Disable bounce when scroll is disabled
       bounces={effectiveScrollEnabled}
       // Show scrollbar only when scrollable
